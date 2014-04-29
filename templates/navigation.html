@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        input {
+            font-family: "Helvetica Neue", "Helvetica", 'Arial', "sans-serif";
+            min-height: 30px;
+            display: block;
+            margin-bottom: 15px;
+            margin-top: 5px;
+            margin-right: 5px;
+            outline: none;
+            border-radius: 5px;
+        }
+    </style>
+    <title></title>
+    <link type="text/css" rel="stylesheet" href="../css/foundation.css" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+
+</head>
+<body>
+    <h1>Links 4 Test</h1>
+    <p>This page contains links that help us testing our application</p>
+    <nav style="margin: auto;">
+        {% if name != '' %}
+        <p>hello, {{ name }}</p>
+        <a class="button" href="play/">play the game</a>
+        <a class="button" href="admin/">admin area</a>
+        <a class="button" href="register/">register</a>
+        <a class="button" href="test-email/">test email handler</a>
+        <a class="button" href="logout/">logout</a>
+        {% else %}
+        <a class="button" href="login/">login</a>
+        <a class="button" href="admin/">admin area</a>
+        <a class="button" href="test-email/">test email handler</a>
+        {% endif %}
+    </nav>
+    <br><br><br>
+    {% if name != '' %}
+    <form method="get" action="start-level/">
+        <input id="level" required type="text" name="level" placeHolder="level" />
+        <input type="submit" class="button" value="start level" />
+    </form>
+    <form method="get" action="submit-level/">
+        <input id="score" required type="text" name="score" placeHolder="score" />
+        <input type="submit" class="button" value="submit level" />
+    </form>
+    {% endif %}
+    <script>
+        $(function() { // on page load
+            $('.button').css('background-color', '#333333');
+            $('.button').css('border-radius', '10px');
+            $('.button').css('border-radius', '10px');
+            $('.button').hover(function() {
+                $(this).css('background-color', '#1f7994');
+            }, function() {
+                $(this).css('background-color', '#333333');
+            })
+            $('#level').css('width', '134px');
+            $('#score').css('width', '134px');
+        });
+    </script>
+</body>
+</html>

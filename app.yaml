@@ -1,0 +1,37 @@
+application: torah-squash
+version: 3_2
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+- url: /css
+  static_dir: css
+- url: /javascript
+  static_dir: javascript
+- url: /src
+  static_dir: src
+- url: /images/login_page
+  static_dir: images/login_page
+  mime_type: image/login_page/png
+- url: /images
+  static_dir: images
+  mime_type: image/png
+- url: /images/compliments
+  static_dir: images/compliments
+  mime_type: image/compliments/png
+- url: /photoshoped
+  static_dir: photoshoped
+  mime_type: photoshoped/png
+
+- url: .*
+  script: main.app
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+- name: jinja2
+  version: latest

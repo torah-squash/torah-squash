@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+{% autoescape false %}
+<html>
+<head>
+    <title>Users table</title>
+    <!--<link type="text/css" rel="stylesheet" href="../css/style.css" />-->
+    <!--<link type="text/css" rel="stylesheet" href="../css/foundation.css" />-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+    <style>
+        #page {
+            padding: 0px;
+        }
+        #page li {
+            display: inline;
+        }
+        #message {
+            color: red;
+            padding: 0px;
+            position: relative;
+            left: 1150px;
+            top: -45px;
+            /*position: relative;
+            top: -100px;*/
+        }
+        #message li {
+            display: list-item;
+            font-size: 1.1em;
+        }
+        table, td, th {
+            padding: 0px;
+        }
+        td, th {
+            width: 120px;
+        }
+        .max_width {
+            width: 150px;
+        }
+        input {
+            font-family: "Helvetica Neue", "Helvetica", 'Arial', "sans-serif";
+            min-height: 30px;
+            display: block;
+            margin-bottom: 15px;
+            margin-top: 5px;
+            margin-right: 5px;
+            outline: none;
+            border-radius: 5px;
+        }
+        /*.button {
+            background-color: #fff;
+            border-image-source: initial;
+            border-image-slice: initial;
+            border-image-width: initial;
+            border-image-outset: initial;
+            border-image-repeat: initial;
+            background-color: #fff;
+            box-sizing: border-box;
+        }*/
+        .red_button {
+            background-color: #fe2020;/*#c60f13;*/
+            border: 2px outset #fe2020;
+            border-image-source: initial;
+            border-image-slice: initial;
+            border-image-width: initial;
+            border-image-outset: initial;
+            border-image-repeat: initial;
+            box-sizing: border-box;
+        }
+        .red_button:hover {
+            background-color: #be0c0f;
+            border: 2px outset #be0c0f;
+        }
+        .red_button:active {
+            background-color: #be0c0f;
+            border: 2px inset #be0c0f;
+        }
+        .blue_button {
+            background-color: #2ba6cb;
+            border: 2px outset #2ba6cb;
+            border-image-source: initial;
+            border-image-slice: initial;
+            border-image-width: initial;
+            border-image-outset: initial;
+            border-image-repeat: initial;
+            box-sizing: border-box;
+        }
+        .blue_button:hover {
+            background-color: #2285a2;
+            border: 2px outset #2285a2;
+        }
+        .blue_button:active {
+            background-color: #2285a2;
+            border: 2px inset #2285a2;
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <header>
+            <h1>Users table</h1>
+        </header>
+        <ul id="page"><li><table>
+            <tr>
+                <th>username</th>
+                <th>first name</th>
+                <th>second name</th>
+                <th>class</th>
+                <th>school</th>
+                <th>email</th>
+                <th>gender</th>
+                <th>group id</th>
+                <th></th>
+            </tr>{% for user in users %}
+            {% if user.username %}<tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.firstName }}</td>
+                <td>{{ user.secondName }}</td>
+                <td>{{ user.classString }}</td>
+                <td>{{ user.school }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.gender }}</td>
+                <td>{{ user.groupId }}</td>
+                <td><input type="submit" name="submit" class="red_button" style="font-size: 1.05em; margin-left: 10px;" value="remove" /></td>
+            </tr>{% endif %}
+            {% endfor %}<tr><form id="registrForm" method="post" action="/register/">
+                <td><input type="text" id="username" name="username" value="{{username}}"
+                           placeHolder="username" style="width: 130px;" /></td>
+                <td><input type="text" name="firstName" value="{{firstName}}"
+                           placeHolder="first name" style="width: 130px;" /></td>
+                <td><input type="text" name="secondName" value="{{secondName}}"
+                           placeHolder="second name" style="width: 130px;" /></td>
+                <td><input type="text" name="classString" value="{{classString}}"
+                           placeHolder="class" style="width: 130px;" /></td>
+                <td><input type="text" name="school" value="{{school}}"
+                           placeHolder="school" style="width: 130px;" /></td>
+                <td><input type="text" name="email" value="{{email}}"
+                           placeHolder="email" style="width: 130px;" /></td>
+                <td><select name="gender">
+                    {% if gender == "female" %}<option value="male">male</option>
+                    <option value="female" selected>female</option>
+                    {% else %}<option value="male" selected>male</option>
+                    <option value="female">female</option>{% endif %}</select></td>
+                <td><input type="text" name="groupId" value="{{groupId}}"
+                           placeHolder="group id" style="width: 130px;" /></td>
+                <td><input type="submit" name="submit" class="blue_button" style="font-size: 1.05em; margin-left: 23px;" value="add" /></td>
+            </form></tr>
+        </table></li><li>
+            <ul id="message">{{ message }}</ul>
+        </li></ul>
+    </article>
+</body>
+</html>
+{% endautoescape %}
