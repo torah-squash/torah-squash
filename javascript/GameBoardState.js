@@ -288,6 +288,7 @@ function cancleState(){
 function fillUp(){
 	if(cellsToMove == null && startedFill == false){
 		startedFill = true;
+        fixBoard();
 		cellsToMove = getCellsToMove();
 		setSpeedToFallingCells(cellsToMove);
 		return false;
@@ -365,21 +366,18 @@ function switchCaseOfFillUp(){
 		cellState = 'turnAngle';
 	}	
 }
+
 function fixBoard(){
-//    for(var i = 0 ; i < NUM_ROWS ; i++){
-//        for(var j = 0 ; j < NUM_COLUMNS ; j++){
-//            board[i][j].x1 = board[i][j].body.x;
-//            board[i][j].y1 = board[i][j].body.y;
-//        }
-//    }
     for(var i = 0 ; i < NUM_ROWS ; i++){
         for(var j = 0 ; j < NUM_COLUMNS ; j++){
-            var x = j*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_X;
-	        var y = i*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_Y;
-            board[i][j].x1 = x;
-            board[i][j].body.x = x;
-            board[i][j].y1 = y;
-            board[i][j].body.y = y;
+            if(board[i][j] != null){
+                var x = j*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_X;
+                var y = i*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_Y;
+                board[i][j].x1 = x;
+                board[i][j].body.x = x;
+                board[i][j].y1 = y;
+                board[i][j].body.y = y;
+            }
         }
     }
 }
