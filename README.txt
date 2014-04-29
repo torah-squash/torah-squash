@@ -2,7 +2,7 @@ torah-squash final project
 ----------------------------------------------------------
 
 our site:
-torah-squash.appspot.com
+http://torah-squash.appspot.com
 
 github:
 https://github.com/torah-squash
