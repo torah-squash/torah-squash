@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Created by user on 26/02/14.
  */
 /*
@@ -561,7 +561,7 @@ function set3TorahsVelocityY(time,bigLocY,smallLocY){
 //	rightTorah.body.velocity.y = speed;	
 }
 function setPageVelocityX(distance,time){
-	for(var i = 0 ; i < numPages; i++){
+	for(var i = 2 ; i < numPages; i++){
 		setSpeedX(page[i],distance + page[i].body.x,time);
 		setSpeedX(page[i].stars,distance + page[i].stars.body.x,time);
 		//TODO
@@ -572,13 +572,15 @@ function setPageVelocityX(distance,time){
 }
 function setPageX(index,x){
 	if(page[index] != null){
-		page[index].body.x = x;
-		page[index].stars.body.x = x;
-//		page[index].lock.body.x = x;
-		page[index].number.x = x + PAGE_WIDTH/2;
-		page[index].number.anchor.setTo(0.5,0.5);
-        page[index].pointsText.x = x + PAGE_WIDTH/2;
-		page[index].pointsText.anchor.setTo(0.5,0.5);
+        if(index != 0){
+            page[index].body.x = x;
+            page[index].stars.body.x = x;
+    //		page[index].lock.body.x = x;
+            page[index].number.x = x + PAGE_WIDTH/2;
+            page[index].number.anchor.setTo(0.5,0.5);
+            page[index].pointsText.x = x + PAGE_WIDTH/2;
+            page[index].pointsText.anchor.setTo(0.5,0.5);
+        }
 	}
 }
 function setPapers(isWithPapersInWorld){
@@ -588,15 +590,31 @@ function setPapers(isWithPapersInWorld){
         widthPaper = rightPaper - leftPaper;
         numSpots = parseInt(widthPaper/(PAGE_WIDTH+SPACE_BETWEEN_PAGES));
         setPageX(shiftRightPage,rightPaper - (PAGE_WIDTH+SPACE_BETWEEN_PAGES)*(0));
-        for(var i = 0 ; i < numPages ; i++){
-            if(i < shiftRightPage && (rightScrol.body.x < game.width - STOP_SCROL_LOC - PAGE_WIDTH*2 || rightScrol.endAnimation > game.time.now)){
-                setPageX(i,-PAGE_WIDTH);
+        if(shiftRightPage == 1){
+            setPageX(shiftRightPage,rightPaper - (PAGE_WIDTH+SPACE_BETWEEN_PAGES)*(-1));
+            for(var i = 1 ; i < numPages ; i++){
+                if(i < shiftRightPage && (rightScrol.body.x < game.width - STOP_SCROL_LOC - PAGE_WIDTH*2 || rightScrol.endAnimation > game.time.now)){
+                    setPageX(i,-PAGE_WIDTH);
+                }
+                else {
+                    var location = page[shiftRightPage].body.x + (shiftRightPage - i)*(PAGE_WIDTH+SPACE_BETWEEN_PAGES);
+                    setPageX(i,location);
+                }
+        //		setPageX(i,(PAGE_WIDTH+SPACE_BETWEEN_PAGES)*(shiftRightPage-1-i) - page[shiftRightPage].body.x);
             }
-            else {
-                var location = page[shiftRightPage].body.x + (shiftRightPage - i)*(PAGE_WIDTH+SPACE_BETWEEN_PAGES);
-                setPageX(i,location);
+            setPageX(1,-PAGE_WIDTH);
+        }
+        else{
+            for(var i = 0 ; i < numPages ; i++){
+                if(i < shiftRightPage && (rightScrol.body.x < game.width - STOP_SCROL_LOC - PAGE_WIDTH*2 || rightScrol.endAnimation > game.time.now)){
+                    setPageX(i,-PAGE_WIDTH);
+                }
+                else {
+                    var location = page[shiftRightPage].body.x + (shiftRightPage - i)*(PAGE_WIDTH+SPACE_BETWEEN_PAGES);
+                    setPageX(i,location);
+                }
+        //		setPageX(i,(PAGE_WIDTH+SPACE_BETWEEN_PAGES)*(shiftRightPage-1-i) - page[shiftRightPage].body.x);
             }
-    //		setPageX(i,(PAGE_WIDTH+SPACE_BETWEEN_PAGES)*(shiftRightPage-1-i) - page[shiftRightPage].body.x);
         }
 	}
 	else{
@@ -930,7 +948,6 @@ function followBackgroundAfterScrolers(){
 			kill(hideLeft);
 			kill(hideRight);
             hideRight = game.add.sprite(game.width - STOP_SCROL_LOC - PAGE_WIDTH/2, 0, 'rightBackgroundCut');
-//            alert(game.width - STOP_SCROL_LOC - PAGE_WIDTH/2+","+game.width);
 			if(rightScrol != null){
 				hideLeft = game.add.tileSprite(0, 0, leftScrol.body.x + 40, game.world.height, 'background');
 			}
@@ -1048,10 +1065,10 @@ function putArrows(isToPut){
 //	kill(doubleLeftArrow);
 //	kill(doubleRightArrow);
 	if(isToPut){
-		leftArrow = game.add.sprite(leftScrol.body.x+25,page[0].body.y+PAGE_HEIGHT/3, 'leftArrow', 0);
+		leftArrow = game.add.sprite(leftScrol.body.x+20,page[0].body.y+PAGE_HEIGHT/3, 'leftArrow', 0);
 		enableClick(leftArrow,leftArrowClick);
 		leftArrow.endAnimation = 0;
-		rightArrow = game.add.sprite(rightScrol.body.x+20,page[0].body.y+PAGE_HEIGHT/3, 'rightArrow', 0);
+		rightArrow = game.add.sprite(rightScrol.body.x+25,page[0].body.y+PAGE_HEIGHT/3, 'rightArrow', 0);
 		enableClick(rightArrow,rightArrowClick);
 		rightArrow.endAnimation = 0;
 //		doubleLeftArrow = game.add.sprite(leftScrol.body.x+25-60,page[0].body.y+PAGE_HEIGHT/3, 'doubleLeftArrow', 0);
