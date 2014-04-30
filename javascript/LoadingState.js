@@ -23,6 +23,7 @@ var isAnimation;
 
 var loadingState = {
     preload : function() {
+        game.load.image('introduction', 'images/introduction.png');
         //game.load.image('ccccccccccccc', 'photoshoped/circle3.png');
         game.load.image('t1', 'photoshoped/torah4.png');
         game.load.image('t2', 'photoshoped/torah_infront.png');
@@ -80,6 +81,7 @@ var loadingState = {
         percentText = game.add.text(game.world.centerX - 60 / 2.0, 470/*500*/, presents + "%", style);
         game.load.setPreloadFunction(this.updateProgress);
     }, create: function() {
+        game.add.sprite(game.world.centerX - 604/2,game.world.height - 320,'introduction');
         logo_torah_title = game.add.sprite(game.world.centerX - 100, 80, 'torah_logo');
         logo_torah_title.visible = false;
         logo_squash_title = game.add.sprite(game.world.centerX - 100, 120, 'squash_logo');
