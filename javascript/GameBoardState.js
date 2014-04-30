@@ -12,8 +12,14 @@
  *  
  * 
  */
-var firstTimeAngle = true;
+var END_WIDTH = 615;
+var END_HEIGHT = 225;
 var endTimeInterval;
+var TURN_TIME = 0.5;
+var endLabel = null;
+var firstTimeAngle = true;
+var endTimeTurn = 0;
+var isStartedTurn = false;
 var angleTimeInterval;
 var gameBackground = null;
 var winnerPic = null;
@@ -25,12 +31,11 @@ var POINTS = 20,score = 0,scoreLable = null;
 var isAllEnabled = false;
 var pair = null;
 var backOn = null,backOff = null;
-var style = { font: "30pt Courier", fill: "Blue", stroke: "White", strokeThickness: 2 };
+var style = { font: "30pt Arial", fill: "Blue", stroke: "White", strokeThickness: 2 };
 var PASUK_STYLE = { font: "22pt Courier", fill: "#000000", stroke: "#004444", strokeThickness: 2 ,align: "center"};
-var STEPS_STYLE = { font: "28pt Courier", fill: "Red", stroke: "Blue", strokeThickness: 1 };
-var LEVEL_STYLE = { font: "28pt Courier", fill: "Yellow", stroke: "Blue", strokeThickness: 1 };
-var SCORE_STYLE = { font: "28pt Courier", fill: "Purple", stroke: "Blue", strokeThickness: 1 };
-
+var STEPS_STYLE = { font: "28pt Arial", fill: "Red", stroke: "Blue", strokeThickness: 1 };
+var LEVEL_STYLE = { font: "28pt Arial", fill: "Yellow", stroke: "Blue", strokeThickness: 1 };
+var SCORE_STYLE = { font: "28pt Arial", fill: "Purple", stroke: "Blue", strokeThickness: 1 };
 var NUM_ROWS = 7, NUM_COLUMNS = 12;
 var CELL_SIZE = 50;
 var countAngle = 0;
@@ -42,7 +47,7 @@ var sets = null;
 var startedFill = false;
 var cellsToMove = null;
 var stepsLabel = null;
-var COLORS_ARRAY = ['Red','Blue','Orange','Yellow','Purple','Pink'];//,'Black'];
+var COLORS_ARRAY = ['Red','Blue','Orange','Green','Purple','Pink'];//,'Black'];
 var LETTERS_ARRAY = ['א','ב','ג','ד','ה','ה','ו','ו','ז','ח','ט','י','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
 var lettersArray = LETTERS_ARRAY;
 //var LETTERS_ARRAY = ['l','o','v','e','q','a','z','w','s','x','e','d','c','r','f','v','t','g','b','y','h','n','u','j','m','i','k','o','l','p'];
@@ -94,6 +99,9 @@ var shopState = {
      board = [];
      isCalledSwapping = false;
      steps = 10;
+     endLabel = null;
+     endTimeTurn = 0;
+     isStartedTurn = false;
      sets = null;
      startedFill = false;
      cellsToMove = null;
@@ -125,9 +133,13 @@ create: function() {
     hideBackground.crop.x = 200;
     hideBackground.x = 200;
 	pasuk = psukim[(levelClicked-1)];
-	steps = parseInt(pasuk.length/3 - levelClicked/2) * 2;
-    if(steps < pasuk.length/4){
-        steps = parseInt(pasuk.length/4);
+//	steps = parseInt(3*Math.sqrt(pasuk.length) - levelClicked/2);
+//    if(steps < pasuk.length/4){
+//        steps = parseInt(pasuk.length/4);
+//    }
+	steps = parseInt(3.5*Math.sqrt(pasuk.length) - levelClicked/2);
+    if(steps < pasuk.length/3.5){
+        steps = parseInt(pasuk.length/3.5);
     }
 	cutPasuk(10);
 	levelLable = game.add.text(20,240,":שלב \n"+levelClicked,LEVEL_STYLE);
@@ -138,7 +150,7 @@ create: function() {
     removeSetsInBeginning();
 	initialFlags();
 //    addLettersToArray('array twice');
-    addLettersToArray('pasuk once');
+    addLettersToArray('pasuk twice');
 //	createToys();
 	setBeckgoundToTop();
 }, 
@@ -158,6 +170,14 @@ update: function() {
 		break;
 	case 'audioClick':
 		break;
+    case 'winner':
+        cancleAll();
+        displayWinnerMessage();
+        break;
+    case 'looser':
+        cancleAll();
+        displaySorryMessage();
+        break;
 	}
     once = false;
 //    setTimeout(updateV, 1000 / 30);
@@ -269,15 +289,15 @@ function cancleState(){
 	cellState = 'null';
 	stateI = 'null';
 	enableAll();
-	pair = getPair();
-	if(pair != null){
-//		putSelectedCell(pair[0]);
-//		putSelectedCell(pair[1]);
-	}
-	else{
-        alert("there is no more moves! :(")
-		//TODO:!!!
-	}
+//	pair = getPair();
+//	if(pair != null){
+////		putSelectedCell(pair[0]);
+////		putSelectedCell(pair[1]);
+//	}
+//	else{
+//        alert("there is no more moves! :(")
+//		//TODO:!!!
+//	}
 }
 function fillUp(){
 	if(cellsToMove == null && startedFill == false){
@@ -341,9 +361,8 @@ function switchCaseOfRemoveSets(){
 		if(isThereEmptyCells() == true){
 			cellState = 'playPoints';
 		}
-		else if(setGameIfGameOver() == false);
 		else{
-			cancleState();
+            setGameIfGameOver();
 		}
 	}	
 }
@@ -608,6 +627,7 @@ function getWordSets(vectors,getAll){//TODO!!!
 function ____SET_FUNCTIONS____(){}
 function setAngleOfSets(sets){
     var timesTurn = 1;
+
 //    if(firstTimeAngle == true){
 //        firstTimeAngle = false;
 //        endTimeInterval = game.time.now;
@@ -620,30 +640,78 @@ function setAngleOfSets(sets){
 //        return false;
 //    }
 	var isDone = true;
-	if(sets.length == 0){
-		return true;
-	}
-	for(var i = 0 ; i < sets.length ; i++){
-		for(var j = 0 ; j < sets[i].length ; j++){
-//            alert(sets[i][j][0]);//+','+sets[i][j][1]);
-            // TODO
-            /*************************************************/
-			board[sets[i][j][0].i1][sets[i][j][0].j1].letter.angle -= ANGLE_CONST*timesTurn;
-			if(board[sets[i][j][0].i1][sets[i][j][0].j1].letter.angle > -360){
-				isDone = false;
-			}
-            /*************************************************/
-		}
-	}
-	if(isDone){
-		for(var i = 0 ; i < NUM_ROWS ; i++){
-			for(var j = 0 ; j < NUM_COLUMNS ; j++){
-				board[i][j].letter.angle = 0;
-                firstTimeAngle = true;
-			}
-		}
-	}
-	return isDone;
+    var cell;
+//    if(isStartedTurn == false){
+        if(sets.length == 0){
+            return true;
+        }
+//        isStartedTurn = true;
+//        for(var i = 0 ; i < sets.length ; i++){
+//            for(var j = 0 ; j < sets[i].length ; j++){
+//                cell = sets[i][j][0];
+//                board[cell.i1][cell.j1].endAnimation = game.time.now + TURN_TIME;
+//            }
+//        }
+//    }
+//    else{
+        for(var i = 0 ; i < sets.length ; i++){
+            for(var j = 0 ; j < sets[i].length ; j++){
+                cell = sets[i][j][0];
+    //            alert(sets[i][j][0]);//+','+sets[i][j][1]);
+                // TODO
+                /*************************************************/
+                board[sets[i][j][0].i1][sets[i][j][0].j1].letter.angle -= ANGLE_CONST*timesTurn;
+                if(board[sets[i][j][0].i1][sets[i][j][0].j1].letter.angle > -360){
+                    isDone = false;
+                }
+                /*************************************************/
+            }
+        }
+        if(isDone){
+            for(var i = 0 ; i < NUM_ROWS ; i++){
+                for(var j = 0 ; j < NUM_COLUMNS ; j++){
+                    board[i][j].letter.angle = 0;
+                    firstTimeAngle = true;
+                }
+            }
+        }
+        return isDone;
+//    }
+}
+function setAngleOfSets1(sets){
+    var isDone = true;
+    var cell;
+    if(isStartedTurn == false){
+        if(sets.length == 0){
+            return true;
+        }
+        isStartedTurn = true;
+        endTimeTurn = game.time.now + TURN_TIME;
+    }
+    else{
+        for(var i = 0 ; i < sets.length ; i++){
+            for(var j = 0 ; j < sets[i].length ; j++){
+                cell = sets[i][j][0];
+    //            alert(sets[i][j][0]);//+','+sets[i][j][1]);
+                // TODO
+                /*************************************************/
+                board[sets[i][j][0].i1][sets[i][j][0].j1].letter.angle -= ANGLE_CONST*timesTurn;
+                if(board[sets[i][j][0].i1][sets[i][j][0].j1].letter.angle > -360){
+                    isDone = false;
+                }
+                /*************************************************/
+            }
+        }
+        if(isDone){
+            for(var i = 0 ; i < NUM_ROWS ; i++){
+                for(var j = 0 ; j < NUM_COLUMNS ; j++){
+                    board[i][j].letter.angle = 0;
+                    firstTimeAngle = true;
+                }
+            }
+        }
+        return isDone;
+    }
 }
 function setBeckgoundToTop(){
 	hideBackground.bringToTop();
@@ -671,42 +739,68 @@ function setBeckgoundToTop(){
 //    toysGroup.bringToTop();
 //    bringToTopToys();
 }
+
+function winAndExit(){
+        score += steps*1000;
+
+}
+
 function setGameIfGameOver(){
 	if(isPasukFull()){
-//		game.state.start('chooseGameState', true, true);
-        score += steps*1000;
-		//alert('you Win!!!');
-        displayWinnerMessage();
+        stateI = 'winner';
 	}
 	else if(steps <=0){
-//		game.state.start('chooseGameState', true, true);
-		//alert('you Lost');
-        displaySorryMessage();
+        stateI = 'looser';
 	}
+    else{
+        cancleState();
+    }
 	return true;
 }
 function displayWinnerMessage() {
-    $.get( "../submit-level/?score=" + score.toString(), function( data ) {
-        console.log('Your score is: ' + score + " to ../submit-level/?score=" + score);
-    });
-    if (levels != "") {
-        levels = levels + "," + score.toString();
-    } else {
-        levels = score.toString();
+    if(endLabel == null){
+        score += steps*1000;
+        updateScoreLable();
+        $.get( "../submit-level/?score=" + score.toString(), function( data ) {
+            console.log('Your score is: ' + score + " to ../submit-level/?score=" + score);
+        });
+        if (levels != "") {
+            levels = levels + "," + score.toString();
+        } else {
+            levels = score.toString();
+        }
+        currentLevel = levels.split(',').length;
+        console.log("levels have been updated: " + levels);
+        var endTime = 2;
+        endLabel = game.add.sprite((GAME_WIDTH-END_WIDTH)/2,-END_HEIGHT,'winner');
+        game.add.tween(endLabel).to({y: (GAME_HEIGHT-END_HEIGHT)/2}, endTime*TIME_INTERVAL, Phaser.Easing.Quadratic.OutIn, true, 0, 0, false);
+        endLabel.endAnimation = game.time.now + endTime*TIME_INTERVAL;
     }
-    currentLevel = levels.split(',').length;
-    console.log("levels have been updated: " + levels);
-    winnerPic = game.add.sprite(450, 190, 'winner');
-    killEverythingToExitState();
-    game.state.start('chooseGameState', true, true);
+    else if(endLabel.endAnimation > game.time.now){
+
+    }
+    else{
+        killEverythingToExitState();
+        game.state.start('chooseGameState', true, true);
+    }
 }
 function displaySorryMessage() {
-    $.get( "../leave-level/", function( data ) {
-        // do nothing
-    });
-    game.add.sprite(470, 190, 'sorry');
-    killEverythingToExitState();
-    game.state.start('chooseGameState', true, true);
+    if(endLabel == null){
+        $.get( "../leave-level/", function( data ) {
+            // do nothing
+        });
+        var endTime = 2;
+        endLabel = game.add.sprite((GAME_WIDTH-END_WIDTH)/2,-END_HEIGHT,'looser');
+        game.add.tween(endLabel).to({y: (GAME_HEIGHT-END_HEIGHT)/2}, endTime*TIME_INTERVAL, Phaser.Easing.Quadratic.OutIn, true, 0, 0, false);
+        endLabel.endAnimation = game.time.now + endTime*TIME_INTERVAL;
+    }
+    else if(endLabel.endAnimation > game.time.now){
+
+    }
+    else{
+        killEverythingToExitState();
+        game.state.start('chooseGameState', true, true);
+    }
 }
 
 function setIJ(cell,i,j){
@@ -1478,6 +1572,7 @@ function killBoard(){
 function killEverythingToExitState(){
 //     kill(backOn);
 //    kill(backOff);
+    kill(endLabel);
     killBoard();
     destroy(stepsLabel);
     destroy(pasukLabel);
