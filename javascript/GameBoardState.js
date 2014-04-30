@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Created by user on 03/03/14.
  */
 /*
@@ -37,7 +37,7 @@ var countAngle = 0;
 var levelClicked = 1;
 var board = [];
 var isCalledSwapping = false;
-var steps = 30, ANGLE_CONST = 9;
+var steps = 30, ANGLE_CONST = 20;
 var sets = null;
 var startedFill = false;
 var cellsToMove = null;
@@ -52,12 +52,12 @@ var flags = null, NUM_CHARS_IN_LINE = 45;
 var isBringingUp= false;
 var CELL_SPACE = 3;
 var BOARD_WIDTH = NUM_COLUMNS*(CELL_SIZE+CELL_SPACE)-CELL_SPACE;
-var BRING_UP_TIME = 0.6;
+var BRING_UP_TIME = 0.5;
 var BOARD_HEIGHT = NUM_ROWS*(CELL_SIZE+CELL_SPACE)-CELL_SPACE;
 var cellState = 'turnAngle', stateI = 'first';
 var prevCellClick = null;
 var isAllCancle = false;
-var SWAP_TIME = 0.4,FALL_TIME = 0.17,RESIZE_POINTS_TIME = 40,WAIT_POINTS_TIME = 0;
+var SWAP_TIME = 0.4,FALL_TIME = 0.14,RESIZE_POINTS_TIME = 40,WAIT_POINTS_TIME = 0;
 var cellClicked = null;
 var doneKilling = true;
 var saveTime = 0;
@@ -69,15 +69,12 @@ var pasukMatrix = null;
 var once = false;
 var RESIZE_POINTS_STYLES = [
 { font: "12px Miriam Fixed", fill: 'Purple', stroke: "#ffffff", strokeThickness: 1,  align: "center"},
-{ font: "16px Miriam Fixed", fill: 'Purple', stroke: "#ffffff", strokeThickness: 1,  align: "center"},
-{ font: "20px Miriam Fixed", fill: 'Purple', stroke: "#ffffff", strokeThickness: 1,  align: "center"},
+{ font: "17px Miriam Fixed", fill: 'Purple', stroke: "#ffffff", strokeThickness: 1,  align: "center"},
 { font: "22px Miriam Fixed", fill: 'Purple', stroke: "#ffffff", strokeThickness: 1,  align: "center"},
-{ font: "25px Miriam Fixed", fill: 'Purple', stroke: "Pink", strokeThickness: 1,  align: "center"},
-{ font: "31px Miriam Fixed", fill: 'Purple', stroke: "Pink", strokeThickness: 1,  align: "center"},
+{ font: "28px Miriam Fixed", fill: 'Purple', stroke: "Pink", strokeThickness: 1,  align: "center"},
 { font: "34px Miriam Fixed", fill: 'Purple', stroke: "Pink", strokeThickness: 1,  align: "center"},
 { font: "36px Miriam Fixed", fill: 'Purple', stroke: "Red", strokeThickness: 1,  align: "center"},
 { font: "38px Miriam Fixed", fill: 'Purple', stroke: "Red", strokeThickness: 1,  align: "center"},
-{ font: "39px Miriam Fixed", fill: 'Purple', stroke: "Yellow", strokeThickness: 1,  align: "center"},
 { font: "40px Miriam Fixed", fill: 'Purple', stroke: "Yellow", strokeThickness: 1,  align: "center"}
               ];
 
@@ -147,15 +144,6 @@ create: function() {
 }, 
 
 update: function() {
-    for(var i = 0; i < 5; i++) {
-        if (!once) {
-            once = true;
-            this.updateV();
-        }
-    }
-},
-
-updateV: function() {
     console.log('1');
 	switch(stateI){
 	case 'first':
@@ -206,7 +194,7 @@ function cellClick(cell){
 		stateI = 'null';
 		cellState = 'checkSwap';
 		killPair();
-		putSelectedCell(cell);
+		putSelectedCell(prevCellClick);
 	}
 	else{
 		removeSelectedCell(prevCellClick);
@@ -219,7 +207,12 @@ function cellClick(cell){
 				cellState = 'swap';
 			}
 			else{
-				cancleState();
+                prevCellClick = cell;
+                stateI = 'null';
+                cellState = 'checkSwap';
+                killPair();
+                putSelectedCell(prevCellClick);
+                enableAll();
 			}
 			break;
 		case 'swap':
@@ -272,23 +265,23 @@ function firstTime(){
 }
 function ____BIG_FUNCTIONS____(){}
 function cancleState(){
-	prevCellClick = null;
+    prevCellClick = null;
 	cellState = 'null';
 	stateI = 'null';
 	enableAll();
-//	pair = getPair();
+	pair = getPair();
 	if(pair != null){
-		putSelectedCell(pair[0]);
-		putSelectedCell(pair[1]);		
+//		putSelectedCell(pair[0]);
+//		putSelectedCell(pair[1]);
 	}
 	else{
+        alert("there is no more moves! :(")
 		//TODO:!!!
 	}
 }
 function fillUp(){
 	if(cellsToMove == null && startedFill == false){
 		startedFill = true;
-        fixBoard();
 		cellsToMove = getCellsToMove();
 		setSpeedToFallingCells(cellsToMove);
 		return false;
@@ -299,6 +292,7 @@ function fillUp(){
 	else{
 		cellsToMove = null;
 		startedFill = false;
+        fixBoard();
 		return true;
 	}
 }
@@ -371,12 +365,7 @@ function fixBoard(){
     for(var i = 0 ; i < NUM_ROWS ; i++){
         for(var j = 0 ; j < NUM_COLUMNS ; j++){
             if(board[i][j] != null){
-                var x = j*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_X;
-                var y = i*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_Y;
-                board[i][j].x1 = x;
-                board[i][j].body.x = x;
-                board[i][j].y1 = y;
-                board[i][j].body.y = y;
+                fixCellBodyLocation(board[i][j]);
             }
         }
     }
@@ -733,10 +722,13 @@ function setIJOnly(cell,i,j){
 	cell.j1 = j;
 }
 function setLettersBackToTheirCells(){
+    var x,y;
 	for(var i = 0 ; i < NUM_ROWS ; i++){
 		for(var j = 0 ; j < NUM_COLUMNS ; j++){
-			board[i][j].letter.x = board[i][j].body.x + CELL_SIZE/2;
-			board[i][j].letter.y = board[i][j].body.y + CELL_SIZE/2;
+            x = j*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_X;
+            y = i*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_Y;
+            board[i][j].letter.x = x + CELL_SIZE/2;
+			board[i][j].letter.y = y + CELL_SIZE/2;
 			board[i][j].letter.anchor.setTo(0.5,0.5);
 
 		}
@@ -782,7 +774,7 @@ function setSpeedToFallingCells(cells){
 	for(var i = 0 ; i < cells.length ; i++){
 		var numEmptyRowsUnder = countEmptyInRangeColumn(cells[i].j1, cells[i].i1+1, NUM_ROWS);
 		var time = numEmptyRowsUnder*FALL_TIME;
-		var destPic = cells[i].body.y + numEmptyRowsUnder*(CELL_SPACE+CELL_SIZE);
+		var destPic = (i+numEmptyRowsUnder)*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_Y - 10;//cells[i].body.y + numEmptyRowsUnder*(CELL_SPACE+CELL_SIZE);
 		var destLetter = cells[i].letter.y + numEmptyRowsUnder*(CELL_SPACE+CELL_SIZE);
 		setIJOnly(cells[i],cells[i].i1+numEmptyRowsUnder,cells[i].j1);
 		setSpeedCellY(cells[i], destPic,destLetter, time);
@@ -1240,6 +1232,7 @@ function dragAndSwap(i1,j1,i2,j2){
 		for(var i = 0 ; i < NUM_ROWS ; i++){
 			for(var j = 0 ; j < NUM_COLUMNS ; j++){
 				if(board[i][j]!=null){
+                    fixCellBodyLocation(board[i][j]);
 					enableClick(board[i][j],cellClick);
 //					enableDrag(board[i][j],cellDrag);
 				}
@@ -1276,11 +1269,14 @@ function fakeSwap(cell1,cell2){
 	board[cell2.i1][cell2.j1] = temp;
 }
 function fixCellBodyLocation(cell){
-	console.log("try fix:"+board[cell.i1][cell.j1].body.x+","+cell.x1+","+board[cell.i1][cell.j1].body.y+","+cell.y1);
-//	board[cell.i1][cell.j1].body.x = cell.x1;
-//	board[cell.i1][cell.j1].body.y = cell.y1;
-    setSpeedCell(board[cell.i1][cell.j1],cell,0.01);
-	console.log("fixed:"+board[cell.i1][cell.j1].body.x+","+cell.x1+","+board[cell.i1][cell.j1].body.y+","+cell.y1);
+    var i = cell.i1;
+    var j = cell.j1;
+    var x = j*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_X;
+    var y = i*(CELL_SIZE+CELL_SPACE)+BOARD_LOCATION_Y;
+    board[i][j].x1 = x;
+    board[i][j].body.x = x;
+    board[i][j].y1 = y;
+    board[i][j].body.y = y;
 }
 function initialFlags(){
 	flags = [true];
