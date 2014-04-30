@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Created by user on 26/02/14.
  */
 
@@ -57,10 +57,13 @@ var loadingState = {
         //	game.load.image('background', 'images/back.png');
 	game.load.image('backOn', 'images/back_on.png');
 	game.load.image('backOff', 'images/back_Off.png');
-    game.load.image('winner', 'images/compliments/winner.png');
-    game.load.image('sorry', 'images/compliments/sorry.png');
+//    game.load.image('winner', 'images/compliments/winner.png');
+//    game.load.image('sorry', 'images/compliments/sorry.png');
 	game.load.image('cell','images/empty-cell.png');//cell.png');
 	game.load.image('selectedCell','images/selected_cell.png');
+    game.load.image('winner','images/well_done.png');
+    game.load.image('looser','images/failed.png');
+
 	game.load.image('kad','images/toys/kad.png');
 	game.load.image('shofar','images/toys/shofar.png');
 	game.load.image('menora','images/toys/menora.png');
