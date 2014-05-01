@@ -534,7 +534,7 @@ function enableClickArrows(){
 }
 function scrolPages(numSteps){
 	cancleClickArrows();
-	if(shiftRightPage + numSteps < numPages - numPageAvailable + 1 && shiftRightPage + numSteps > 1 && isMoving(page[shiftRightPage]) == false){
+	if(shiftRightPage + numSteps < numPages - numPageAvailable && shiftRightPage + numSteps > 0 && isMoving(page[shiftRightPage]) == false){
 		rightPaper = rightScrol.body.x + (PAGE_WIDTH+SPACE_BETWEEN_PAGES);
 		var distance = numSteps*(PAGE_WIDTH+SPACE_BETWEEN_PAGES);
 		var time = Math.abs(RUN_TIME*Math.abs(numSteps));
