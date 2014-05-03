@@ -65,6 +65,7 @@ class User(db.Model):
     notificationKey = db.StringProperty(default=getRandomKey())
     password = db.StringProperty(default=getRandomPassword())
     groupId = db.StringProperty()
+    isAdmin = db.BooleanProperty(default=False)
     #registrationDate = db.TimeProperty(default=getRegistrationDate())
     def __str__(self):
         return str(self.username) + "#" + str(self.firstName)\
@@ -95,16 +96,16 @@ EMAIL_REGEX = re.compile("[^@]+@[^@]+\.[^@]+")
 
 
 class LoginHandler(webapp2.RedirectHandler):
-    def get(self):
+    # def get(self):
         # show login page using templates
-        session = get_current_session()
-        message = session.get('message', '')
-        username = session.get('login-username', '')
-        name = session.get('name', '')
-        template_values = {'message': message, 'username': username, 'name': name}
-        template = JINJA_ENVIRONMENT.get_template('login.html')
-        self.response.write(template.render(template_values))
-        session['message'] = ''
+        # session = get_current_session()
+        # message = session.get('message', '')
+        # username = session.get('login-username', '')
+        # name = session.get('name', '')
+        # template_values = {'message': message, 'username': username, 'name': name}
+        # template = JINJA_ENVIRONMENT.get_template('loginOld.html')
+        # self.response.write(template.render(template_values))
+        # session['message'] = ''
 
     def post(self):
         if self.request.get('submit'):
@@ -122,7 +123,7 @@ class LoginHandler(webapp2.RedirectHandler):
                 # save info in session object
                 session['username'] = user.username
                 session['name'] = user.firstName
-                session['isAdmin'] = False
+                session['isAdmin'] = user.isAdmin
                 session['message'] = ''
                 # redirect to the same page
                 self.redirect("/play/")
@@ -130,7 +131,7 @@ class LoginHandler(webapp2.RedirectHandler):
                 session['login-username'] = username
                 session['message'] = 'username or password are incorrect'
                 # redirect to the same page
-                self.redirect("/login/")
+                self.redirect("/")
 
 
 class LogoutHandler(webapp2.RedirectHandler):
@@ -148,75 +149,91 @@ class LogoutHandler(webapp2.RedirectHandler):
             self.redirect('/')
 
 
-class RegisterHandler(webapp2.RequestHandler):
-    def get(self):
-        # TODO show registration page using templates
-        pass
+USERNAME_MISS_HE = "&#1488;&#1504;&#1488; &#1492;&#1494;&#1503; &#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513;"
+USERNAME_MISS_EN = "username is missing"
+USERNAME_SHORT_HE = "&#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1510;&#1512;&#1497;&#1498; &#1500;&#1492;&#1499;&#1497;&#1500; &#1500;&#1508;&#1495;&#1493;&#1514; 6 &#1514;&#1493;&#1493;&#1497;&#1501;"
+USERNAME_SHORT_EN = "username must contains at least 6 characters"
 
+FIRST_NAME_MISS_HE = "&#1488;&#1504;&#1488; &#1492;&#1494;&#1503; &#1513;&#1501; &#1508;&#1512;&#1496;&#1497;"
+FIRST_NAME_MISS_EN = "first name is missing"
+
+PASSWORD_MISS_HE = "&#1488;&#1504;&#1488; &#1492;&#1494;&#1503; &#1505;&#1497;&#1505;&#1502;&#1492;"
+PASSWORD_SHORT_HE = "&#1505;&#1497;&#1505;&#1502;&#1492; &#1510;&#1512;&#1497;&#1499;&#1492; &#1500;&#1492;&#1499;&#1497;&#1500; &#1500;&#1508;&#1495;&#1493;&#1514; 6 &#1514;&#1493;&#1493;&#1497;&#1501;"
+
+USERNAME_EXIST_HE = "&#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1514;&#1508;&#1493;&#1505; &#1488;&#1504;&#1488; &#1489;&#1495;&#1512; &#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1488;&#1495;&#1512;"
+
+SUCCESS_REGISTER_HE = "&#1492;&#1492;&#1512;&#1513;&#1502;&#1492; &#1489;&#1493;&#1510;&#1506;&#1492; &#1489;&#1492;&#1510;&#1500;&#1495;&#1492;"
+
+class RegisterHandler(webapp2.RequestHandler):
     def post(self):
         username = self.request.get('username') or ""
         firstName = self.request.get('firstName') or ""
-        secondName = self.request.get('secondName') or ""
-        classString = self.request.get('classString') or ""
-        school = self.request.get('school') or ""
-        email = self.request.get('email') or ""
-        gender = self.request.get('gender') or ""
-        groupId = self.request.get('groupId') or ""
+        password = self.request.get('password') or ""
+        #secondName = self.request.get('secondName') or ""
+        #classString = self.request.get('classString') or ""
+        #school = self.request.get('school') or ""
+        #email = self.request.get('email') or ""
+        #gender = self.request.get('gender') or ""
+        #groupId = self.request.get('groupId') or ""
 
         session = get_current_session()
 
         error = ""
-        self.response.write("username: " + username + "<br>")
-        self.response.write("gender: " + gender + "<br>")
         if username is "":
-            error += "<li>username is missing</li>"
+            error += "<li>" + USERNAME_MISS_HE + "</li>"
         elif len(username) < 6:
-            error += "<li>username must contains at least 6 characters</li>"
+            error += "<li>" + USERNAME_SHORT_HE + "</li>"
         if firstName is "":
-            error += "<li>first name is missing</li>"
-        if secondName is "":
-            error += "<li>second name is missing</li>"
-        if classString is "":
-            error += "<li>class is missing</li>"
-        if school is "":
-            error += "<li>school is missing</li>"
-        if email is "":
-            error += "<li>email is missing</li>"
-        elif not EMAIL_REGEX.match(email):
-            error += "<li>email address incorrect</li>"
-        if gender is "":
-            error += "<li>gender is missing</li>"
-        elif gender not in ["male", "female"]:
-            error += "<li>gender is undefined properly</li>"
-        if groupId is "":
-            error += "<li>group id is missing</li>"
+            error += "<li>" + FIRST_NAME_MISS_HE +"</li>"
+        if password is "":
+            error += "<li>" + PASSWORD_MISS_HE +"</li>"
+        elif len(password) < 6:
+            error += "<li>" + PASSWORD_SHORT_HE +"</li>"
+        #if secondName is "":
+        #    error += "<li>second name is missing</li>"
+        #if classString is "":
+        #    error += "<li>class is missing</li>"
+        #if school is "":
+        #    error += "<li>school is missing</li>"
+        #if email is "":
+        #    error += "<li>email is missing</li>"
+        #elif not EMAIL_REGEX.match(email):
+        #    error += "<li>email address incorrect</li>"
+        #if gender is "":
+        #    error += "<li>gender is missing</li>"
+        #elif gender not in ["male", "female"]:
+        #    error += "<li>gender is undefined properly</li>"
+        #if groupId is "":
+        #    error += "<li>group id is missing</li>"
         if error is "":
             # check if username is unique
             result = db.GqlQuery("SELECT * from User WHERE username='" + username + "'").get()
             if result is not None:
-                error += "<li>username already exists</li>"
-            result = db.GqlQuery("SELECT * from User WHERE email='" + email + "'").get()
-            if result is not None:
-                error += "<li>email address already exists</li>"
+                error += "<li>" + USERNAME_EXIST_HE + "</li>"
+            #result = db.GqlQuery("SELECT * from User WHERE email='" + email + "'").get()
+            #if result is not None:
+            #    error += "<li>email address already exists</li>"
         if error is not "":
-            session['message'] = error
+            error = "<ul id='register_message'>" + error + "</ul>"
+            session['register_message'] = error
             session['register_username'] = username
             session['register_firstName'] = firstName
-            session['register_secondName'] = secondName
-            session['register_classString'] = classString
-            session['register_school'] = school
-            session['register_email'] = email
-            session['register_gender'] = gender
-            session['register_group_id'] = groupId
-            self.redirect("/admin/")
+            #session['register_secondName'] = secondName
+            #session['register_classString'] = classString
+            #session['register_school'] = school
+            #session['register_email'] = email
+            #session['register_gender'] = gender
+            #session['register_group_id'] = groupId
+            self.redirect("/")
+            self.response.write(error)
             return
-        user = User(username=username, firstName=firstName, secondName=secondName,
-                    classString=classString, school=school, email=email, gender=gender,
-                    groupId=groupId)
-        session['message'] = '<li>write successfully</li>'
+        user = User(username=username, firstName=firstName, password=password)
+        #user = User(username=username, firstName=firstName, secondName=secondName,
+        #            classString=classString, school=school, email=email, gender=gender,
+        #            groupId=groupId)
+        session['register_message'] = "<ul id='register_message'><li>" + SUCCESS_REGISTER_HE +"</li></ul>"
         user.put()
-        session['message'] = '<li>user was added successfully</li>'
-        self.redirect("/admin/")
+        self.redirect("/")
         return
 
 
@@ -272,8 +289,12 @@ class NotifyKeyHandler(object):
 
 class AdminHandler(webapp2.RequestHandler):
     def get(self):
-        users = db.GqlQuery("SELECT * FROM User ORDER BY username, firstName, secondName").fetch(100)
         session = get_current_session()
+        isAdmin = session.get('isAdmin', False);
+        if not isAdmin:
+            self.redirect('/404/')
+        users = db.GqlQuery("SELECT * FROM User ORDER BY username, firstName, secondName").fetch(100)
+
         message = session.get('message', '')
         session = get_current_session()
         username = cgi.escape(session.get('register_username', ''), quote=True)
@@ -308,13 +329,40 @@ class GameHandler(webapp2.RedirectHandler):
         self.response.write(template.render(template_values))
 
 
+#AB = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+#      'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+#      '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+#
+#class AddManyUsers(webapp2.RedirectHandler):
+#    def get(self):
+#        group = self.request.get('groupId', '')
+#        if group is '':
+#            self.response('groupId is missing')
+#            return
+#        for i in range(0, 1, 100):
+#            #name = get
+#        pass
+
+
 class MainHandler(webapp2.RedirectHandler):
     def get(self):
         session = get_current_session()
         name = session.get('name', '')
-        template_values = {'name': name}
-        template = JINJA_ENVIRONMENT.get_template('navigation.html')
+        username = session.get('login-username', '')
+        message = session.get('message', '')
+        registerFirstName = session.get('register_firstName', '')
+        registerUserName = session.get('register_username', '')
+        register_message = session.get('register_message', '')
+        template_values = {'name': name , 'message': message,
+                           'register_message': register_message, 'username': username,
+                           'r_firstName': registerFirstName, 'r_userName': registerUserName}
+        template = JINJA_ENVIRONMENT.get_template('login.html') #navigation.html')
         self.response.write(template.render(template_values))
+        session['message'] = ''
+        session['login-username'] = ''
+        session['register_firstName'] = ''
+        session['register_username'] = ''
+        session['register_message'] = ''
 
 
 def getPasuk(book, perek, pasook):

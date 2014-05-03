@@ -2,61 +2,193 @@
 {% autoescape false %}
 <html>
 <head>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-<style>
-/*.mainLogIn{
-    padding-top: 200px;
-    padding-left: 30%;
-}from some reason this not working so
- we'll use regular spaces*/
-    #login {
-        width: 200px;
-        margin: 0 auto;
-        margin-top: 50px;
-    }
-    body {
-        background: url("../images/login_page/backgroud.png") no-repeat;
-        background-position: right top;
-        background-color: black;
-    }
-    input {
-        font-family: "Helvetica Neue", "Helvetica", 'Arial', "sans-serif";
-        min-height: 30px;
-        display: block;
-        margin-top: 5px;
-        margin-right: 5px;
-        outline: none;
-        border-radius: 5px;
-    }
-</style>
+    <meta charset="UTF-8" />
+    <title></title>
+    <script src="javascript/jquery.js" type="text/javascript"></script>
+    <style>
+    	html, body {
+    		margin: 0px;
+    	}
+
+        #main_page {
+            width: 1056px;
+            height: 540px;
+            margin: 0px auto;
+        }
+
+    	#login_screen, #register_screen {
+    		width: 1056px;
+    		height: 540px;
+    		background-image: url('photoshoped/login-background.png');
+    		background-size: 1056px 540px;
+    		margin: 0px auto;
+    	}
+
+        .non_click_list {
+            margin: 0px;
+            padding: 0px;
+            font-size: 1em;
+        }
+
+        .non_click_list_item {
+            display: inline;
+            position: absolute;
+            top: 0px;
+            width: 0px;
+            height: 0px;
+        }
+
+    	form {
+    		width: 150px;
+    		padding-top: 70px;
+    		padding-left: 75px;
+    	}
+
+    	form, input, button {
+    		direction: rtl;	
+			margin-bottom: 20px;
+			font-size: 1.22em;
+			border: 0px outset #000000;
+    	}
+
+		form, input, button, .submit {
+			height: 60px;
+			width: 350px;
+			border-radius: 30px;
+		}
+    	
+        .second_menu {
+            position: relative;
+            left: 560px;
+        }
+
+        .top_menu {
+            position: relative;
+            top: 0px;
+        }
+
+        .bottom_menu {
+            position: relative;
+            top: 50px;
+        }
+
+    	.submit {
+			background-color: #D8BC86;
+            opacity: 0.80;
+    	}
+
+    	.button {
+    		background-color: #FEBB31;
+    		position: relative;
+    		top: 109px;
+    		left: 488px;
+    		height: 80px;
+			width: 82px;
+			border-radius: 40px;
+			font-size: 1.7em;
+            opacity: 0.90;
+    	}
+
+    	.message {
+    		color: #FF0237;
+			position: absolute;
+			font-size: 1.22em;
+            top: -5px;
+            font-family: sans-serif;
+    	}
+
+        #register_message {
+            padding: 3px 11px;
+            background-color: #fff;
+            opacity: 0.6;
+            border-radius: 30px;
+        }
+
+        #register_message li {
+            padding: 0px;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-<article class="mainLoginIn">
-<form id="login" action="" method="post">
-    {% if name == '' %}
-    <input name="username" type="text" value="{{ username }}" placeholder="UserName" id="userName"></br>
-    <input name="password" type="password" placeholder="Password" id="password"></br>
-    <input name="submit" type="submit" value="Login">
-    <p style="color: red;">{{ message }}</p>
-    {% else %}
-    <p style="color: gold">hello, {{ name }}</p>
-    <a href="/">return to main page</a>
-    {% endif %}
-</form>
+    <ul id="main_page" class="non_click_list">
+        <li class="non_click_list_item">
+        	<article id="login_screen">
+        	    <ul class="non_click_list">
+                    <li class="non_click_list_item">
+                        <form action="/login/" method="post">
+                            {% if message == "username or password are incorrect" %}
+                            <p class="message">שם משתמש או סיסמה לא נכונים</p>
+                            {% endif %}
+                	        <input type="text" name="username" value="{{ username }}" placeholder="שם משתמש" />
+                	        <input type="password" name="password" placeholder="הכנס סיסמה" />
+                	        <input type="submit" name="submit" class="submit" value="התחבר" />
+                	    </form>
+                    </li>
+                    <li class="non_click_list_item">
+                	    <button class="button" method="get">או</button>
+                    </li>
+                    <li class="non_click_list_item">
+                        <form class="register second_menu bottom_menu" action="/404/" submit>
+                		    <input id="show_register" type="button" class="submit" value="הירשם" />
+                		</form>
+                    </li>
+                </ul>
+            </article>
+        </li>
+        <li class="non_click_list_item">
+            <article id="register_screen" style="/*visibility: hidden;*/">
+                <ul class="non_click_list">
+                    <li class="non_click_list_item">
+                        <form action="/404/" class="bottom_menu">
+                            <input type="button" id="show_login" class="submit" value="התחבר" />
+                            <dir dir="rtl">{{ register_message }}</div>
+                        </form>
+                    </li>
+                    <li class="non_click_list_item">
+                        <button class="button" method="get">או</button>
+                    </li>
+                    <li class="non_click_list_item">
+                        <form action="/register/" class="register second_menu top_menu" method="post">
+                            <input type="text" name="username" value="{{ r_userName }}" placeholder="שם משתמש" />
+                            <input type="text" name="firstName" value="{{ r_firstName }}" placeholder="שם פרטי" />
+                            <input type="password" name="password" placeholder="הכנס סיסמה" />
+                            <input type="submit" name="submit" class="submit" value="הירשם" />
+                        </form>
+                    </li>
+                </ul>
+            </article>
+        </li>
+    </ul>
+    <script>
+        $('#show_register').click(
+            function() {
+                show_register();
+            }
+        );
+        $('#show_login').click(
+            function() {
+                show_login();
+            }
+        );
 
-<!--<input id="b" type="button" value="submit" />-->
-<p class="result"></p>
-</article>
+        function show_register() {
+            $('#login_screen').fadeOut(1000); //css('visibility', 'hidden');
+            $('#register_screen').fadeIn(500); // css('visibility', 'visible');
+        }
+
+        function show_login() {
+            $('#register_screen').fadeOut(1000); // css('visibility', 'hidden');
+            $('#login_screen').fadeIn(500); //css('visibility', 'visible');
+        }
+
+        {% if register_message != '' %}
+            $('#login_screen').fadeOut(0);
+        {% else %}
+            $('#register_screen').fadeOut(0);
+        {% endif %}
+
+    </script>
 </body>
-<script>
-//    $( "#b" ).click(function() {
-//        var da = $( ".result").html();
-//        //alert(da);
-//        $.get( "../", function( data ) {
-//            $( ".result" ).html( da + data );
-//            //alert( "Load was performed." );
-//        });
-//    });
-</script>
 </html>
 {% endautoescape %}

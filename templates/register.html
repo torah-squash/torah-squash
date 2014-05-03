@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <article>
+        <form id="registrForm" method="post" action="/register/">
+                <input type="text" id="username" name="username" value="{{username}}"
+                           placeHolder="username" style="width: 130px;" />
+                <input type="text" name="firstName" value="{{firstName}}"
+                           placeHolder="first name" style="width: 130px;" />
+                <input type="text" name="classString" value="{{classString}}"
+                           placeHolder="class" style="width: 130px;" />
+                <input type="text" name="school" value="{{school}}"
+                           placeHolder="school" style="width: 130px;" />
+                <input type="text" name="email" value="{{email}}"
+                           placeHolder="email" style="width: 130px;" />
+               <select name="gender">
+                    {% if gender == "female" %}<option value="male">male</option>
+                    <option value="female" selected>female</option>
+                    {% else %}<option value="male" selected>male</option>
+                    <option value="female">female</option>{% endif %}</select>
+                <input type="text" name="groupId" value="{{groupId}}"
+                           placeHolder="group id" style="width: 130px;" />
+                <input type="submit" name="submit" class="blue_button" style="font-size: 1.05em; margin-left: 23px;" value="add" />
+            </form>
+    </article>
+</body>
+</html>

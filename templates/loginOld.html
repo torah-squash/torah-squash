@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+{% autoescape false %}
+<html>
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+<style>
+/*.mainLogIn{
+    padding-top: 200px;
+    padding-left: 30%;
+}from some reason this not working so
+ we'll use regular spaces*/
+    #login {
+        width: 200px;
+        margin: 0 auto;
+        margin-top: 50px;
+    }
+    body {
+        background: url("../images/login_page/backgroud.png") no-repeat;
+        background-position: right top;
+        background-color: black;
+    }
+    input {
+        font-family: "Helvetica Neue", "Helvetica", 'Arial', "sans-serif";
+        min-height: 30px;
+        display: block;
+        margin-top: 5px;
+        margin-right: 5px;
+        outline: none;
+        border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+<article class="mainLoginIn">
+<form id="login" action="" method="post">
+    {% if name == '' %}
+    <input name="username" type="text" value="{{ username }}" placeholder="UserName" id="userName"></br>
+    <input name="password" type="password" placeholder="Password" id="password"></br>
+    <input name="submit" type="submit" value="Login">
+    <p style="color: red;">{{ message }}</p>
+    {% else %}
+    <p style="color: gold">hello, {{ name }}</p>
+    <a href="/">return to main page</a>
+    {% endif %}
+</form>
+
+<!--<input id="b" type="button" value="submit" />-->
+<p class="result"></p>
+</article>
+</body>
+<script>
+//    $( "#b" ).click(function() {
+//        var da = $( ".result").html();
+//        //alert(da);
+//        $.get( "../", function( data ) {
+//            $( ".result" ).html( da + data );
+//            //alert( "Load was performed." );
+//        });
+//    });
+</script>
+</html>
+{% endautoescape %}

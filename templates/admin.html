@@ -123,24 +123,24 @@
             </tr>{% endif %}
             {% endfor %}<tr><form id="registrForm" method="post" action="/register/">
                 <td><input type="text" id="username" name="username" value="{{username}}"
-                           placeHolder="username" style="width: 130px;" /></td>
+                           placeHolder="שם משתמש" style="width: 130px;" /></td>
                 <td><input type="text" name="firstName" value="{{firstName}}"
-                           placeHolder="first name" style="width: 130px;" /></td>
+                           placeHolder="שם פרטי" style="width: 130px;" /></td>
                 <td><input type="text" name="secondName" value="{{secondName}}"
-                           placeHolder="second name" style="width: 130px;" /></td>
+                           placeHolder="שם משפחה" style="width: 130px;" /></td>
                 <td><input type="text" name="classString" value="{{classString}}"
-                           placeHolder="class" style="width: 130px;" /></td>
+                           placeHolder="כיתה" style="width: 130px;" /></td>
                 <td><input type="text" name="school" value="{{school}}"
-                           placeHolder="school" style="width: 130px;" /></td>
+                           placeHolder="בית ספר" style="width: 130px;" /></td>
                 <td><input type="text" name="email" value="{{email}}"
-                           placeHolder="email" style="width: 130px;" /></td>
+                           placeHolder="אימייל" style="width: 130px;" /></td>
                 <td><select name="gender">
-                    {% if gender == "female" %}<option value="male">male</option>
-                    <option value="female" selected>female</option>
-                    {% else %}<option value="male" selected>male</option>
-                    <option value="female">female</option>{% endif %}</select></td>
-                <td><input type="text" name="groupId" value="{{groupId}}"
-                           placeHolder="group id" style="width: 130px;" /></td>
+                    {% if gender == "female" %}<option value="male">זכר</option>
+                    <option value="female" selected>נקבה</option>
+                    {% else %}<option value="male" selected>זכר</option>
+                    <option value="female">נקבה</option>{% endif %}</select></td>
+                <td><input name="groupId" value="{{groupId}}"
+                           placeHolder="קבוצה 2" style="width: 130px;" value="2" /></td>
                 <td><input type="submit" name="submit" class="blue_button" style="font-size: 1.05em; margin-left: 23px;" value="add" /></td>
             </form></tr>
         </table></li><li>
