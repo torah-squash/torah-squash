@@ -1,5 +1,5 @@
 application: torah-squash
-version: 3_6
+version: 4_0
 runtime: python27
 api_version: 1
 threadsafe: yes

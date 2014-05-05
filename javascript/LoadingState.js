@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Created by user on 26/02/14.
  */
 
@@ -64,6 +64,10 @@ var loadingState = {
 	game.load.image('selectedCell','images/selected_cell.png');
     game.load.image('winner','images/well_done.png');
     game.load.image('looser','images/failed.png');
+    game.load.image('hint','images/hint.png');
+    game.load.image('hintClicked','images/hint_clicked.png');
+    game.load.image('showPasuk','images/show_pasuk.png');
+    game.load.image('showPasukClicked','images/show_pasuk_clicked.png');
 
 	game.load.image('kad','images/toys/kad.png');
 	game.load.image('shofar','images/toys/shofar.png');

@@ -14,4 +14,5 @@ game.state.add('loadingState', loadingState);
 game.state.add('intoductionState', introductionState);
 game.state.add('shopState', shopState);
 game.state.add('chooseGameState', chooseGameState);
+//game.state.add('chooseGameState', map);
 

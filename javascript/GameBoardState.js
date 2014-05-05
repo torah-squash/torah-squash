@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Created by user on 03/03/14.
  */
 /*
@@ -12,13 +12,28 @@
  *  
  * 
  */
+var SHOW_PASUK_LOC_X = 850;
+var showPasukImg;
+var showPasukImgClicked;
+var toShowFullPasuk;
+var startedShowPasuk;
+var endShowPasukTime;
+var SHOW_PASUK_TIME = 1;
+var startedResizePoints;
+var endShowPointsTime;
+var SHOW_POINTS_TIME = 0.3;
+var endTurnTime;
+var TURN_TIME = 0.3;
+var clickedHint;
+var hintImg;
+var initializedSteps;
+var pasukArrayIndex;
+var pasukArray;
 var END_WIDTH = 615;
 var END_HEIGHT = 225;
 var endTimeInterval;
-var TURN_TIME = 0.5;
 var endLabel = null;
 var firstTimeAngle = true;
-var endTimeTurn = 0;
 var isStartedTurn = false;
 var angleTimeInterval;
 var gameBackground = null;
@@ -48,7 +63,7 @@ var startedFill = false;
 var cellsToMove = null;
 var stepsLabel = null;
 var COLORS_ARRAY = ['Red','Blue','Orange','Green','Purple','Pink'];//,'Black'];
-var LETTERS_ARRAY = ['א','ב','ג','ד','ה','ה','ו','ו','ז','ח','ט','י','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+var LETTERS_ARRAY = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
 var lettersArray = LETTERS_ARRAY;
 //var LETTERS_ARRAY = ['l','o','v','e','q','a','z','w','s','x','e','d','c','r','f','v','t','g','b','y','h','n','u','j','m','i','k','o','l','p'];
 var pasuk = "בראשית ברא א-לוהים את השמיים ואת הארץ";
@@ -57,7 +72,7 @@ var flags = null, NUM_CHARS_IN_LINE = 45;
 var isBringingUp= false;
 var CELL_SPACE = 3;
 var BOARD_WIDTH = NUM_COLUMNS*(CELL_SIZE+CELL_SPACE)-CELL_SPACE;
-var BRING_UP_TIME = 0.5;
+var BRING_UP_TIME = 0.4;
 var BOARD_HEIGHT = NUM_ROWS*(CELL_SIZE+CELL_SPACE)-CELL_SPACE;
 var cellState = 'turnAngle', stateI = 'first';
 var prevCellClick = null;
@@ -70,21 +85,41 @@ var toysGroup = null, toysArray = null;
 var dragEnabled = false;
 var hideBackground = null;
 var BOARD_LOCATION_X = (CELL_SIZE+CELL_SPACE)*4,BOARD_LOCATION_Y = (CELL_SIZE+CELL_SPACE)*2;
+var HINT_LOC_X = 20;
+var HINT_LOC_Y = 470;
 var pasukMatrix = null;
 var once = false;
 var RESIZE_POINTS_STYLES = [
-{ font: "12px Miriam Fixed", fill: 'Purple', stroke: "#ffffff", strokeThickness: 1,  align: "center"},
-{ font: "17px Miriam Fixed", fill: 'Purple', stroke: "#ffffff", strokeThickness: 1,  align: "center"},
-{ font: "22px Miriam Fixed", fill: 'Purple', stroke: "#ffffff", strokeThickness: 1,  align: "center"},
-{ font: "28px Miriam Fixed", fill: 'Purple', stroke: "Pink", strokeThickness: 1,  align: "center"},
-{ font: "34px Miriam Fixed", fill: 'Purple', stroke: "Pink", strokeThickness: 1,  align: "center"},
-{ font: "36px Miriam Fixed", fill: 'Purple', stroke: "Red", strokeThickness: 1,  align: "center"},
-{ font: "38px Miriam Fixed", fill: 'Purple', stroke: "Red", strokeThickness: 1,  align: "center"},
-{ font: "40px Miriam Fixed", fill: 'Purple', stroke: "Yellow", strokeThickness: 1,  align: "center"}
+{ font: "40px Arial", fill: 'Purple', stroke: "#ffffff", strokeThickness: 1,  align: "center"},
+{ font: "39px Arial", fill: 'Purple', stroke: "#eeeeee", strokeThickness: 1,  align: "center"},
+{ font: "38px Arial", fill: 'Purple', stroke: "#dddddd", strokeThickness: 1,  align: "center"},
+{ font: "37px Arial", fill: 'Purple', stroke: "#cccccc", strokeThickness: 1,  align: "center"},
+{ font: "36px Arial", fill: 'Purple', stroke: "#bbbbbb", strokeThickness: 1,  align: "center"},
+{ font: "35px Arial", fill: 'Purple', stroke: "#aaaaaa", strokeThickness: 1,  align: "center"},
+{ font: "34px Arial", fill: 'Purple', stroke: "#999999", strokeThickness: 1,  align: "center"},
+{ font: "32px Arial", fill: 'Purple', stroke: "#888888", strokeThickness: 1,  align: "center"},
+{ font: "30px Arial", fill: 'Purple', stroke: "#777777", strokeThickness: 1,  align: "center"},
+{ font: "28px Arial", fill: 'Purple', stroke: "#666666", strokeThickness: 1,  align: "center"},
+{ font: "25px Arial", fill: 'Purple', stroke: "#555555", strokeThickness: 1,  align: "center"},
+{ font: "22px Arial", fill: 'Purple', stroke: "#444444", strokeThickness: 1,  align: "center"},
+{ font: "19px Arial", fill: 'Purple', stroke: "#333333", strokeThickness: 1,  align: "center"},
+{ font: "16px Arial", fill: 'Purple', stroke: "#222222", strokeThickness: 1,  align: "center"},
+{ font: "12px Arial", fill: 'Purple', stroke: "#111111", strokeThickness: 1,  align: "center"},
+{ font: "8px Arial", fill: 'Purple', stroke: "#000000", strokeThickness: 1,  align: "center"}
               ];
 
 var shopState = {
 		preload: function() {
+            showPasukImg = null;
+            showPasukImgClicked = null;
+            toShowFullPasuk = false;
+            startedShowPasuk = false;
+            endShowPasukTime = 0;
+            startedResizePoints = false;
+            clickedHint = null;
+    endShowPointsTime = 0;
+            pasukArray = [];
+    pasukArrayIndex = 0;
     endTimeInterval = 0;
     angleTimeInterval = 20;
      sets = null;
@@ -100,7 +135,7 @@ var shopState = {
      isCalledSwapping = false;
      steps = 10;
      endLabel = null;
-     endTimeTurn = 0;
+     endTurnTime = 0;
      isStartedTurn = false;
      sets = null;
      startedFill = false;
@@ -141,6 +176,7 @@ create: function() {
     if(steps < pasuk.length/3.5){
         steps = parseInt(pasuk.length/3.5);
     }
+    initializedSteps = steps;
 	cutPasuk(10);
 	levelLable = game.add.text(20,240,":שלב \n"+levelClicked,LEVEL_STYLE);
 //	setUndoButton(true);
@@ -151,7 +187,12 @@ create: function() {
 	initialFlags();
 //    addLettersToArray('array twice');
     addLettersToArray('pasuk twice');
+    putPasukLettersToArray();
 //	createToys();
+    hintImg = game.add.sprite(HINT_LOC_X,HINT_LOC_Y,'hint');
+    enableClick(hintImg,activeHint);
+    showPasukImg = game.add.sprite(SHOW_PASUK_LOC_X,HINT_LOC_Y,'showPasuk');
+    enableClick(showPasukImg,showPasukClick);
 	setBeckgoundToTop();
 }, 
 
@@ -170,6 +211,9 @@ update: function() {
 		break;
 	case 'audioClick':
 		break;
+    case 'showPasukClick':
+        showPasukClick();
+            break;
     case 'winner':
         cancleAll();
         displayWinnerMessage();
@@ -208,6 +252,7 @@ update: function() {
 function ____MAIN____(){}
 function cellClick(cell){
 	cellClicked = cell;		
+    killPair();
 	stateI = 'cellClick';
 	if(prevCellClick == null){
 		prevCellClick = cell;
@@ -289,15 +334,48 @@ function cancleState(){
 	cellState = 'null';
 	stateI = 'null';
 	enableAll();
-//	pair = getPair();
-//	if(pair != null){
-////		putSelectedCell(pair[0]);
-////		putSelectedCell(pair[1]);
-//	}
-//	else{
-//        alert("there is no more moves! :(")
-//		//TODO:!!!
-//	}
+}
+function showPasukClick(){
+    if(startedShowPasuk == false){
+        stateI = 'showPasukClick';
+        cancleAll();
+        startedShowPasuk = true;
+        toShowFullPasuk = true;
+        endShowPasukTime = game.time.now + SHOW_PASUK_TIME*TIME_INTERVAL;
+        showPasukImgClicked = game.add.sprite(SHOW_PASUK_LOC_X,HINT_LOC_Y,'showPasukClicked');
+        score -= 1000;
+        updateScoreLable();
+        setBeckgoundToTop();
+        return false;
+    }
+    else if(endShowPasukTime > game.time.now){
+        //nothing
+        return false;
+    }
+    else {
+        toShowFullPasuk = false;
+        kill(showPasukImgClicked);
+        enableAll();
+        setBeckgoundToTop();
+        startedShowPasuk = false;
+        stateI = 'null';
+    }
+}
+function activeHint(){
+    if(pair == null){
+        clickedHint = game.add.sprite(HINT_LOC_X,HINT_LOC_Y,'hintClicked');
+        score -= 100;
+        updateScoreLable();
+        pair = getPair();
+        if(pair != null){
+            putSelectedCell(pair[0]);
+            putSelectedCell(pair[1]);
+        }
+        else{
+            alert("there is no more moves! :(")
+            //TODO:!!!
+        }
+    }
 }
 function fillUp(){
 	if(cellsToMove == null && startedFill == false){
@@ -344,7 +422,7 @@ function switchCaseOfTurnAngle(){
 	if(sets == null){
 		sets = getSets(getVectors(), true);
 	}
-	if(setAngleOfSets(sets) == false);
+	if(setAngleOfSets1(sets) == false);
 	else{
 		cellState = 'bringLettersUp';
 	}
@@ -519,13 +597,39 @@ function getRandomCell(i,j){
 	var randomLetter = parseInt(Math.random()*LETTERS_ARRAY.length);
 	var randomColor = parseInt(Math.random()*COLORS_ARRAY.length);
 	cell.color = randomColor;
-	cell.char = LETTERS_ARRAY[randomLetter];
+    if(initializedSteps - steps <= levelClicked || pasukArrayIndex >= pasukArray.length){
+    	cell.char = LETTERS_ARRAY[randomLetter];
+    }
+    else{
+        cell.char = pasukArray[pasukArrayIndex];
+        pasukArrayIndex++;
+    }
 	var styleC = { font: "70px Miriam Fixed", fill: COLORS_ARRAY[randomColor], stroke: "White", strokeThickness: 3, align: "center"};
 	cell.letter = game.add.text(x+CELL_SIZE/2,y+CELL_SIZE/2,cell.char, styleC);
 	cell.letter.anchor.setTo(0.5,0.5);
 	cell.indexStyle = 0;
     cell.points = 0;
 	return cell;
+}
+function putPasukLettersToArray(){
+    pasukArray = [];
+    for(var i = 0 ; i < pasuk.length ; i++){
+        if(pasuk[i] != ' ' && pasuk[i] != '-' && pasuk[i] != '\n' && pasuk[i] != '\''){
+            pasukArray.push(getLowerCase(pasuk[i]));
+        }
+    }
+    //TODO: need to merge it
+    var x, y,temp;
+    var len = pasukArray.length;
+//    pasukArray.merge(0,len);
+    for(var i = 0 ; i < len ; i++){
+        x = parseInt(Math.random()*len);
+        y = parseInt(Math.random()*len);
+//        alert(x+","+y);
+        temp = pasukArray[x];
+        pasukArray[x] = pasukArray[y];
+        pasukArray[y] = temp;
+    }
 }
 function getSets(vectors,getAll){
 	var sets = getColorSets(vectors,getAll);
@@ -679,55 +783,58 @@ function setAngleOfSets(sets){
 //    }
 }
 function setAngleOfSets1(sets){
-    var isDone = true;
     var cell;
+    var angle;
     if(isStartedTurn == false){
         if(sets.length == 0){
             return true;
         }
         isStartedTurn = true;
-        endTimeTurn = game.time.now + TURN_TIME;
+        endTurnTime = game.time.now + TURN_TIME*TIME_INTERVAL;
+        return false;
     }
-    else{
+    else if(endTurnTime > game.time.now){
         for(var i = 0 ; i < sets.length ; i++){
             for(var j = 0 ; j < sets[i].length ; j++){
                 cell = sets[i][j][0];
+                angle = (endTurnTime - game.time.now)*360/(TURN_TIME*TIME_INTERVAL);
     //            alert(sets[i][j][0]);//+','+sets[i][j][1]);
-                // TODO
-                /*************************************************/
-                board[sets[i][j][0].i1][sets[i][j][0].j1].letter.angle -= ANGLE_CONST*timesTurn;
-                if(board[sets[i][j][0].i1][sets[i][j][0].j1].letter.angle > -360){
-                    isDone = false;
-                }
-                /*************************************************/
+                board[cell.i1][cell.j1].letter.angle = angle;
             }
         }
-        if(isDone){
-            for(var i = 0 ; i < NUM_ROWS ; i++){
-                for(var j = 0 ; j < NUM_COLUMNS ; j++){
-                    board[i][j].letter.angle = 0;
-                    firstTimeAngle = true;
-                }
-            }
-        }
-        return isDone;
+        return false;
     }
+    else{
+        for(var i = 0 ; i < NUM_ROWS ; i++){
+            for(var j = 0 ; j < NUM_COLUMNS ; j++){
+                board[i][j].letter.angle = 0;
+            }
+        }
+        isStartedTurn = false;
+        return true;
+    }
+}
+function getPasukText(){
+	var pasukText = "";
+    if(toShowFullPasuk == true){
+        return pasuk;
+    }
+    else{
+        for(var i = 0 ; i < pasuk.length ; i++){
+            if(flags[i] == true){
+                pasukText += pasuk[i];
+            }
+            else{
+                pasukText += '_';
+            }
+        }
+    }
+    return pasukText;
 }
 function setBeckgoundToTop(){
 	hideBackground.bringToTop();
-	if(pasukLabel != null){
-		pasukLabel.destroy();
-	}
-	var pasukText = "";
-	for(var i = 0 ; i < pasuk.length ; i++){
-		if(flags[i] == true){
-			pasukText += pasuk[i];
-		}
-		else{
-			pasukText += '_';
-		}
-	}
-	pasukLabel = game.add.text(game.world.width/2,5,pasukText,PASUK_STYLE);
+    destroy(pasukLabel);
+	pasukLabel = game.add.text(game.world.width/2,5,getPasukText(),PASUK_STYLE);
 	pasukLabel.anchor.setTo(0.5,0);
 	if(stepsLabel != null){
 		stepsLabel.destroy();
@@ -746,7 +853,7 @@ function winAndExit(){
 }
 
 function setGameIfGameOver(){
-	if(isPasukFull()){
+	if(isPasukFull() && toShowFullPasuk == false){
         stateI = 'winner';
 	}
 	else if(steps <=0){
@@ -1115,6 +1222,8 @@ function bringLettersUp(){
 function cancleAll(){
 	if(isAllEnabled){
 		isAllEnabled = false;
+        cancleClick(hintImg);
+        cancleClick(showPasukImg)
 		for(var i = 0 ; i < NUM_ROWS ; i++){
 			for(var j = 0 ; j < NUM_COLUMNS ; j++){
 				if(board[i][j]!=null){
@@ -1323,6 +1432,8 @@ function dragAndSwap(i1,j1,i2,j2){
 }function enableAll(){
 	if(isAllEnabled == false){	
 		isAllEnabled = true;
+        enableClick(hintImg,activeHint);
+        enableClick(showPasukImg,showPasukClick);
 		for(var i = 0 ; i < NUM_ROWS ; i++){
 			for(var j = 0 ; j < NUM_COLUMNS ; j++){
 				if(board[i][j]!=null){
@@ -1456,6 +1567,8 @@ function killPair(){
 		kill(pair[0].selectedImg);
 		kill(pair[1].selectedImg);		
 	}
+    kill(clickedHint);
+    pair = null;
 }
 function lowerCase(letter){
 	if(letter == 'ץ')
@@ -1473,19 +1586,6 @@ function lowerCase(letter){
 }
 
 function nothing(){}
-function playPoints(){
-	if(WAIT_POINTS_TIME < game.time.now){
-		WAIT_POINTS_TIME = game.time.now + RESIZE_POINTS_TIME;
-		var isDead = true;
-					if(resizePoints() == false){
-						isDead = false;
-					}
-		return isDead;
-	}
-	else{
-		return false;
-	}
-}
 function putSelectedCell(cell){
 	if(cell.selectedImg != null){
 		kill(cell.selectedImg);
@@ -1531,34 +1631,38 @@ function removeSets(){
 		return true;
 	}
 }
-function resizePoints(){
-	var nextIndexStyle = getPointsStyleFromBoard() + 1;
-	if(nextIndexStyle == 0){
-		return true;
-	}
-	if(nextIndexStyle >= RESIZE_POINTS_STYLES.length){
+function playPoints(){
+    var indexStyle;
+    if(startedResizePoints == false){
+        startedResizePoints = true;
+        endShowPointsTime = game.time.now + SHOW_POINTS_TIME*TIME_INTERVAL;
+        return false;
+    }
+    else if(endShowPointsTime > game.time.now){
+        indexStyle = parseInt(((endShowPointsTime - game.time.now)/(SHOW_POINTS_TIME*TIME_INTERVAL))*RESIZE_POINTS_STYLES.length);
+		for(var i = 0 ; i < NUM_ROWS ; i++){
+			for(var j = 0 ; j < NUM_COLUMNS ; j++){
+				if(isItsPoints(board[i][j])){
+					board[i][j].indexStyle = indexStyle;
+					board[i][j].letter.setStyle(RESIZE_POINTS_STYLES[indexStyle]);
+				}
+			}
+		}
+		return false;
+    }
+    else{
 		for(var i = 0 ; i < NUM_ROWS ; i++){
 			for(var j = 0 ; j < NUM_COLUMNS ; j++){
 				if(board[i][j] != null){
 					if(isItsPoints(board[i][j])){
-						killCell(board[i][j]);						
+						killCell(board[i][j]);
 					}
 				}
 			}
 		}
+        startedResizePoints = false;
 		return true;
-	}
-	else{
-		for(var i = 0 ; i < NUM_ROWS ; i++){
-			for(var j = 0 ; j < NUM_COLUMNS ; j++){
-				if(isItsPoints(board[i][j])){
-					board[i][j].indexStyle = nextIndexStyle;
-					board[i][j].letter.setStyle(RESIZE_POINTS_STYLES[nextIndexStyle]);
-				}
-			}
-		}
-		return false;		
-	}
+    }
 }
 
 function killBoard(){

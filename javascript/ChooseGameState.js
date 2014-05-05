@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Created by user on 26/02/14.
  */
 /*
@@ -1083,6 +1083,8 @@ function putArrows(isToPut){
 function switchRight () {
 	if(isAnimationDone(bigTorah) == false){
         cancleClick(bigTorah);
+        cancleClick(rightTorah);
+        cancleClick(leftTorah);
 		setSpeedX(bigTorah, rightTorah.body.x, SWITCH_TIME);
 		setSpeedX(rightTorah, bigTorah.body.x, SWITCH_TIME);
 		return false;
@@ -1099,6 +1101,8 @@ function switchRight () {
 function switchLeft () {
 	if(isAnimationDone(bigTorah) == false){
         cancleClick(bigTorah);
+        cancleClick(rightTorah);
+        cancleClick(leftTorah);
 		setSpeedX(bigTorah, leftTorah.body.x, SWITCH_TIME);
 		setSpeedX(leftTorah, bigTorah.body.x, SWITCH_TIME);
 		return false;
