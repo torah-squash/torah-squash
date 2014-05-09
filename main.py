@@ -523,5 +523,4 @@ app = webapp2.WSGIApplication([
     ('/level-status/', LevelStatusHandler),
     ('/group-level/', GroupLevelHandler),
     ('/group-score/', GroupScoreHandler)
-
 ], debug=True)

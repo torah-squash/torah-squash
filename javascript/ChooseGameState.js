@@ -11,6 +11,12 @@
  * when we come back to the torah from the game, we go to the next level, and unlock it
  * 
  */
+var contactsLabel;
+var CONTACTS_TEXT ="torah2014squash@gmail.com :" +  "להערות ויצירת קשר";
+var sumStarsLabel;
+var sumStars;
+var chapterIndex;
+var chapterLabel;
 var didOpen = false;
 var didCloseTorah = false;
 var backOn = null, backOff = null;
@@ -36,14 +42,16 @@ var PAGE_HEIGHT = 230, PAGE_WIDTH = 82;
 var state = 'first';
 var torahFront = null, leftScrol = null, rightScrol = null;
 var scrolOpen = false;
-var leftPaper, rightPaper, widthPaper, numSpots, page = [], numPages = psukim.length+2;//numPages need to be: numPasukimg+2 (for empty Pages)
+var leftPaper, rightPaper, widthPaper, numSpots, page = [], numPages = allPsukim[0].length+2;//numPages need to be: numPasukimg+2 (for empty Pages)
 var step = 0;
 var nowOpenningScrol = false;
 var nowClosingScrol = false;
 var currLevel = 1;
 var countScrolToLevel = 0;
-var STYLE_LEVEL = { font: "60px Arial", fill: "#000000", align: "center" };
+var STYLE_LEVEL = { font: "50px Arial", fill: "#000000", align: "center" };
 var STYLE_POINTS = { font: "20px Arial", fill: "#0000ff", align: "center" };
+var CHAPTER_STYLE = { font: "40px Arial", fill: "#00ffff", align: "center" };
+var CONTACTS_STYLE = { font: "15px Arial", fill: "#000000", align: "center" };
 var leftArrow = null, rightArrow = null;
 var doubleLeftArrow = null, doubleRightArrow = null;
 var enabled = false;
@@ -58,6 +66,11 @@ var background;
 
 chooseGameState = {
     preload: function () {
+        contactsLabel = null;
+        sumStarsLabel = null;
+        sumStars = -1;
+        chapterIndex = 1;
+        chapterLabel = null;
         DISTANCE_SMALL = game.world.width/2 - STOP_SCROL_LOC;
         backOn = null;
         backOff = null;
@@ -86,7 +99,7 @@ chooseGameState = {
         rightScrol = null;
         scrolOpen = false;
         page = [];
-        numPages = psukim.length + 2;
+        numPages = psukim[0].length + 2;
         step = 0;
         nowOpenningScrol = false;
         nowClosingScrol = false;
@@ -118,8 +131,8 @@ create: function() {
 //    alert(shiftRightPage);
 	game.stage.backgroundColor = '#fff';
 	background = game.add.tileSprite(0, 0, game.world.width, game.world.height, 'background');
-	createPages();
-	enableLevels(false);
+//	createPages(1);
+//	enableLevels(false);
 	hideLeft = game.add.tileSprite(0, 0, game.world.width/2 - BIG_TORAH_WIDTH/4, game.world.height, 'background');
 //    hideRight = game.add.sprite(0, 0, 'background'); //game.add.tileSprite(game.world.width/2 + BIG_TORAH_WIDTH/4, 0, game.world.width, game.world.height, 'background');
 //    hideRight.cropEnabled = true;
@@ -230,29 +243,31 @@ function rightArrowClick(){
 	}
 }
 function doubleLeftArrowClick(){
-	state = 'doubleLeftArrowClick';
-//    setUndoButtonC(false);
-    if(innerState == 'closeTorah' && closeTorah() == false);
-    else if(innerState == 'closeTorah'){innerState = 'bringDownFront';}
-    else if(innerState == 'bringDownFront' && bringDownOnlyFront() == false);
-    else if(innerState == 'bringDownFront'){innerState = 'switchPerek';}
-    else if(innerState == 'switchPerek' && switchTorahToLeftPerek() == false);
-    else if(innerState == 'switchPerek'){innerState = 'bringUpCover';}
-    else if(innerState == 'bringUpCover' && bringUpOnlyFront() == false);
-    else if(innerState == 'bringUpCover'){innerState = 'openTorah';}
-    else if(innerState == 'openTorah' && openTorah() == false);
-    else{
-        innerState = 'closeTorah';
-//        setUndoButtonC(true);
-	    state = 'torahOpen';
-    }
-//	console.log('switch to next season!');
+//    if(chapterIndex < psukim.length){
+        state = 'doubleLeftArrowClick';
+    //    setUndoButtonC(false);
+        if(innerState == 'closeTorah' && closeTorah() == false);
+        else if(innerState == 'closeTorah'){innerState = 'bringDownFront'; chapterIndex++;}
+        else if(innerState == 'bringDownFront' && bringDownOnlyFront() == false);
+        else if(innerState == 'bringDownFront'){innerState = 'switchPerek';}
+        else if(innerState == 'switchPerek' && switchTorahToLeftPerek() == false);
+        else if(innerState == 'switchPerek'){innerState = 'bringUpCover';}
+        else if(innerState == 'bringUpCover' && bringUpOnlyFront() == false);
+        else if(innerState == 'bringUpCover'){innerState = 'openTorah';}
+        else if(innerState == 'openTorah' && openTorah() == false);
+        else{
+            innerState = 'closeTorah';
+    //        setUndoButtonC(true);
+            state = 'torahOpen';
+        }
+    //	console.log('switch to next season!');
+//    }
 }
 function doubleRightArrowClick(){
 	state = 'doubleRightArrowClick';
 //    setUndoButtonC(false);
     if(innerState == 'closeTorah' && closeTorah() == false);
-    else if(innerState == 'closeTorah'){innerState = 'bringDownFront';}
+    else if(innerState == 'closeTorah'){innerState = 'bringDownFront'; chapterIndex--;}
     else if(innerState == 'bringDownFront' && bringDownOnlyFront() == false);
     else if(innerState == 'bringDownFront'){innerState = 'switchPerek';}
     else if(innerState == 'switchPerek' && switchTorahToRightPerek() == false);
@@ -316,7 +331,7 @@ function bring3TorahsBack(){
 function bringDown2AndFront(){
 	if(done == false){
 		done = true;
-		fix2Scrolers();
+		fix2Scrolers(false);
 		initialFront(false);
         //kill(torahFront);
         //torahFront = game.add.sprite((game.world.width-BIG_TORAH_WIDTH)/2, -BIG_TORAH_HEIGHT, 'torahFront', 0);
@@ -342,6 +357,7 @@ function bringDown2AndFront(){
 		kill(leftScrol);
 		kill(torahFront);
 		kill(rightScrol);
+        killPages();
 		done = false;
 		return true;
 	}
@@ -360,9 +376,11 @@ function bringDown3Torahs(){
 function bringUpOnlyFront(){
 	if(isDidBringUp == false){
         isDidBringUp = true;
-        fix2Scrolers();
+        fix2Scrolers(false);
 	    initialFront(true);
+        createPages(chapterIndex);
 	    setPapers(true);
+        followBackgroundAfterScrolers();
         setSpeedY(torahFront,-BIG_TORAH_HEIGHT,UP_TIME);
 		return false;
 	}
@@ -381,8 +399,11 @@ function bringUp2AndFront(){
         isDidBringUp = true;
 		cancleClick(leftTorah);
 		cancleClick(rightTorah);
-        fix2Scrolers();
+        fix2Scrolers(false);
 	    initialFront(true);
+        createPages(chapterIndex);
+        setPapers(true);
+        followBackgroundAfterScrolers();
 		kill(bigTorah);
 		return false;
 	}
@@ -411,13 +432,16 @@ function closeTorah(){
 		return false;
 	}
 	else if(isTorahOpen()){
+        setPapers(true);
 		return false;
 	}
 	else{
 //        alert('done close');
-		fix2Scrolers();
+		fix2Scrolers(false);
         didCloseTorah = false;
         kill(torahFront);
+        destroy(chapterLabel);
+        destroy(sumStarsLabel);
 	    return true;
 	}
 }
@@ -428,6 +452,10 @@ function openTorah(){
 		setSpeedX(rightScrol, game.world.width - STOP_SCROL_LOC - rightScrol.body.width, SCROL_TIME);
 		setPapers(true);
         didOpen = true;
+        putChapterLabel();
+        putSumStars();
+        leftScrol.bringToTop();
+        rightScrol.bringToTop();
 		return false;
 	}
     else if(leftScrol.endAnimation > game.time.now){
@@ -436,12 +464,21 @@ function openTorah(){
     }
 	else{
 //        alert('done open torah');
+        fix2Scrolers(true);
 		setPapers(true);
 		putArrows(true);
 		enableLevels(true);
         didOpen = false;
 		return true;
 	}
+}
+function putChapterLabel(){
+    chapterLabel = game.add.text(GAME_WIDTH/2,100,"חלק "+chapterIndex,CHAPTER_STYLE);
+    chapterLabel.anchor.setTo(0.5,0);
+}
+function putSumStars(){
+    sumStarsLabel = game.add.text(game.world.width/2,150 + PAGE_HEIGHT,"סה"+"\""+"כ כוכבים: "+ sumStars,CHAPTER_STYLE);
+    sumStarsLabel.anchor.setTo(0.5,0);
 }
 function switchTorahToLeftPerek(){
     if(isDidSwitchPerek == false){
@@ -464,7 +501,7 @@ function switchTorahToLeftPerek(){
 }
 function switchTorahToRightPerek(){
     if(isDidSwitchPerek == false){
-        setPapers(false);
+//        setPapers(false);
         initialNextTorah(false);
         isDidSwitchPerek = true;
         setSpeedX(nextTorah,game.world.width/2-BIG_TORAH_WIDTH/2,SWITCH_PEREK_TIME);
@@ -487,7 +524,7 @@ function bringDownOnlyFront(){
 //        alert('start');
         isDidBringDownFront = true;
         initialFront(false);
-        fix2Scrolers();
+        fix2Scrolers(false);
         setSpeedY(torahFront,leftScrol.body.y,DOWN_TIME);
         return false;
     }
@@ -498,8 +535,11 @@ function bringDownOnlyFront(){
      //   alert('done');
         initialBigTorah(true);
         kill(leftScrol);
+        leftScrol = null;
         kill(rightScrol);
         kill(torahFront);
+        killPages();
+        followBackgroundAfterScrolers();
         isDidBringDownFront = false;
         return true;
     }
@@ -521,20 +561,20 @@ function cancleClickArrows(){
 	cancleClick(leftScrol);
 	cancleClick(rightArrow);
 	cancleClick(leftArrow);
-//	cancleClick(doubleRightArrow);
-//	cancleClick(doubleLeftArrow);
+	cancleClick(doubleRightArrow);
+	cancleClick(doubleLeftArrow);
 }
 function enableClickArrows(){
     enableClick(rightScrol,rightArrowClick);
     enableClick(leftScrol,leftArrowClick);
     enableClick(rightArrow,rightArrowClick);
     enableClick(leftArrow,leftArrowClick);
-//    enableClick(doubleRightArrow,doubleRightArrowClick);
-//    enableClick(doubleLeftArrow,doubleLeftArrowClick);
+    enableClick(doubleRightArrow,doubleRightArrowClick);
+    enableClick(doubleLeftArrow,doubleLeftArrowClick);
 }
 function scrolPages(numSteps){
 	cancleClickArrows();
-	if(shiftRightPage + numSteps < numPages - numPageAvailable && shiftRightPage + numSteps > 0 && isMoving(page[shiftRightPage]) == false){
+	if(shiftRightPage + numSteps < numPages - numPageAvailable + 1 && shiftRightPage + numSteps > 1 && isMoving(page[shiftRightPage]) == false){
 		rightPaper = rightScrol.body.x + (PAGE_WIDTH+SPACE_BETWEEN_PAGES);
 		var distance = numSteps*(PAGE_WIDTH+SPACE_BETWEEN_PAGES);
 		var time = Math.abs(RUN_TIME*Math.abs(numSteps));
@@ -598,6 +638,7 @@ function setPapers(isWithPapersInWorld){
                 }
                 else {
                     var location = page[shiftRightPage].body.x + (shiftRightPage - i)*(PAGE_WIDTH+SPACE_BETWEEN_PAGES);
+//                    console.log(numPages +" , "+i);
                     setPageX(i,location);
                 }
         //		setPageX(i,(PAGE_WIDTH+SPACE_BETWEEN_PAGES)*(shiftRightPage-1-i) - page[shiftRightPage].body.x);
@@ -752,10 +793,10 @@ function isNowStopScrolers(stopOpening){
 function isPageDoneMoveOneStep(inRightSide){
 	return page[1].endAnimation < game.time.now;
 //	if(inRightSide){
-//		return (rightPaper - page[shiftRightPage].body.x < page[0].body.width + 90);
+//		return (rightPaper - page[shiftRightPage].body.x < page[1].body.width + 90);
 //	}
 //	else{
-//		return (rightPaper - page[shiftRightPage].body.x < page[0].body.width + 90);
+//		return (rightPaper - page[shiftRightPage].body.x < page[1].body.width + 90);
 //	}
 }
 function isSmallGotToMiddle(smallTorah){
@@ -784,13 +825,16 @@ function bringAllToTop(){
 	bringToTop(leftScrol);
 	bringToTop(rightArrow);
 	bringToTop(leftArrow);
-//	bringToTop(doubleRightArrow);
-//	bringToTop(doubleLeftArrow);
+	bringToTop(doubleRightArrow);
+	bringToTop(doubleLeftArrow);
 	bringToTop(rightTorah);
 	bringToTop(leftTorah);
 	bringToTop(bigTorah);
     bringToTop(nextTorah);
 	bringToTop(torahFront);
+    destroy(contactsLabel);
+    contactsLabel = game.add.text(0,game.world.height,CONTACTS_TEXT,CONTACTS_STYLE);
+    contactsLabel.anchor.setTo(0,1);
 }
 function cancleClick(pic){
 	if(pic != null){
@@ -813,34 +857,52 @@ function killPage(i){
 
     }
 }
-function createPages(){
-    var levelSplit = ("0,0").split(",");
-    if(levels != "") {
-        levelSplit = ("0,0,"+levels).split(",");
+function getNumPsukimUntilChapter(chapter){
+    var sum = 0;
+    for(var i = 0 ; i < chapter - 1 ; i++){
+        sum += allPsukim[i].length;
     }
-    var i = 0;
-    for (; i < numPages && i < levelSplit.length; i++) {
-        var index = Math.min(parseInt(parseInt(levelSplit[i]) / 3000), 2) + 1;
+    return sum;
+}
+function createPages(chapterIndexSet){
+    numPages = allPsukim[chapterIndexSet].length + 2;
+    sumStars = 0;
+    var levelSplit = ["0"];
+    if(levels != "") {
+        levelSplit = ("0,"+levels).split(",");
+    }
+    var i = 1;//(chapterIndexSet - 1)*50;
+    var j = getNumPsukimUntilChapter(chapterIndexSet);
+    if(chapterIndexSet == 1){
+        sumStars = -1;
+    }
+    if(levelSplit.length - j < 1){
+        shiftRightPage = 2;
+    }
+    else{
+        shiftRightPage = levelSplit.length - j - 1;
+    }
+
+//    var countLevelSplit = levelSplit.length;
+    for (; i < numPages && j < levelSplit.length; i++ , j++) {
+        var index = Math.min(parseInt(parseInt(levelSplit[j]) / 3000), 2) + 1;
         page[i] = game.add.sprite(-200,game.world.height/2-PAGE_HEIGHT/2-3,'page',0);
         page[i].endAnimation = 0;
         page[i].stars = game.add.sprite(-200,game.world.height/2-PAGE_HEIGHT/2-3,'star'+index,0);
+        sumStars+=index;
         page[i].stars.endAnimation = 0;
         if(index == -1){
             page[i].isLocked = false;
+            sumStars-=index;
         }
         else{
             page[i].isLocked = false;
         }
-        if (i==0) {
-            kill(page[i].stars);
-            page[i].stars = game.add.sprite(-200,game.world.height/2-PAGE_HEIGHT/2-3,'star0',0);
-            page[i].stars.endAnimation = 0;
-        }
         page[i].level = i-1;
         page[i].number = game.add.text(page[i].body.x + PAGE_WIDTH/2,page[i].body.y + PAGE_HEIGHT/2,""+page[i].level, STYLE_LEVEL);
         page[i].number.anchor.setTo(0.5,0.5);
-        page[i].points = parseInt(levelSplit[i]);//(i < levels.length)?levels[i]:"";//parseInt(Math.random()*10000000);
-        console.log("lvl." + (i - 1).toString() + " score: " + levelSplit[i]);
+        page[i].points = parseInt(levelSplit[j]);//(i < levels.length)?levels[i]:"";//parseInt(Math.random()*10000000);
+//        console.log("lvl." + (i - 1).toString() + " score: " + levelSplit[i]);
         page[i].pointsText = game.add.text(page[i].body.x + PAGE_WIDTH/2,page[i].body.y + 20,""+page[i].points, STYLE_POINTS);
         page[i].pointsText.anchor.setTo(0.5,0);
     }
@@ -858,11 +920,6 @@ function createPages(){
         }
         page[i].stars = game.add.sprite(-200,game.world.height/2-PAGE_HEIGHT/2-3,'star'+index,0);
         page[i].stars.endAnimation = 0;
-        if(i==0){
-            kill(page[i].stars);
-            page[i].stars = game.add.sprite(-200,game.world.height/2-PAGE_HEIGHT/2-3,'star0',0);
-            page[i].stars.endAnimation = 0;
-        }
         page[i].level = i-1;
         page[i].number = game.add.text(page[i].body.x + PAGE_WIDTH/2,page[i].body.y + PAGE_HEIGHT/2,""+page[i].level, STYLE_LEVEL);
         page[i].number.anchor.setTo(0.5,0.5);
@@ -890,19 +947,20 @@ function enableClick(pic,func){
         pic.events.isDown.add(func,this);
 	}
 }
+
 function enableLevels(check){
 	if(check){
         var lastUnlocked = 0;
 		for(var i = 1 ; i < numPages ; i++){
             if(page[i].isLocked == false){
                 lastUnlocked = i;
-//    	        page[i].inputEnabled = true;
-//	            page[i].events.onInputDown.add(goTopage, this);
+    	        page[i].inputEnabled = true;
+	            page[i].events.onInputDown.add(goTopage, this);
             }
 		}
-        var i = lastUnlocked;
-        page[i].inputEnabled = true;
-	    page[i].events.onInputDown.add(goTopage, this);
+//        var i = lastUnlocked;
+//        page[i].inputEnabled = true;
+//	    page[i].events.onInputDown.add(goTopage, this);
 	}
 	else{
 		for(var i = 1 ; i < numPages ; i++){
@@ -910,15 +968,24 @@ function enableLevels(check){
 		}					
 	}
 }
-function fix2Scrolers(){
+function fix2Scrolers(isOpen){
     kill(rightScrol);
     kill(leftScrol);
-    leftScrol = game.add.sprite((game.world.width-BIG_TORAH_WIDTH)/2, game.world.height/2-BIG_TORAH_HEIGHT/2, 'leftScrol', 0);
-    leftScrol.endAnimation = 0;
-//	    enableClick(leftScrol,leftArrowClick);
-    rightScrol = game.add.sprite((game.world.width)/2-1, game.world.height/2-BIG_TORAH_HEIGHT/2, 'rightScrol', 0);
-    rightScrol.endAnimation = 0;
-    setPapers(true);
+    if(isOpen == false){
+        leftScrol = game.add.sprite((game.world.width-BIG_TORAH_WIDTH)/2, game.world.height/2-BIG_TORAH_HEIGHT/2, 'leftScrol', 0);
+        leftScrol.endAnimation = 0;
+    //	    enableClick(leftScrol,leftArrowClick);
+        rightScrol = game.add.sprite((game.world.width)/2-1, game.world.height/2-BIG_TORAH_HEIGHT/2, 'rightScrol', 0);
+        rightScrol.endAnimation = 0;
+    }
+    else{
+        leftScrol = game.add.sprite(STOP_SCROL_LOC, game.world.height/2-BIG_TORAH_HEIGHT/2, 'leftScrol', 0);
+        leftScrol.endAnimation = 0;
+    //	    enableClick(leftScrol,leftArrowClick);
+        rightScrol = game.add.sprite(game.world.width - STOP_SCROL_LOC - rightScrol.body.width, game.world.height/2-BIG_TORAH_HEIGHT/2, 'rightScrol', 0);
+        rightScrol.endAnimation = 0;
+    }
+//    setPapers(true);
 }
 function fixNumbers(){
 	for(var i = 0 ; i < numPages ; i++){
@@ -965,7 +1032,7 @@ function goTopage (img) {
 	levelClicked = img.level;
     $.get( "../start-level/?level=" + img.level.toString(), function( data ) {
         // do nothing
-        console.log('start level ' + img.level + " from ../start-level/?level=" + img.level);
+//        console.log('start level ' + img.level + " from ../start-level/?level=" + img.level);
     });
     deleteAllImg();
 	game.state.start('shopState', true, true);
@@ -981,14 +1048,18 @@ function deleteAllImg(){
     kill(rightScrol);
     kill(leftArrow);
     kill(rightArrow);
-//    kill(doubleLeftArrow);
-//    kill(doubleRightArrow);
-    for(var i = 0 ; i < page.length ; i++){
-        killPage(page[i]);
-    }
+    kill(doubleLeftArrow);
+    kill(doubleRightArrow);
+    killPages();
     kill(background);
     kill(backOn);
     kill(backOff);
+}
+function killPages(){
+    for(var i = 1 ; i < page.length ; i++){
+//        alert(i);
+        killPage(i);
+    }
 }
 function initialBigTorah(inWrold){
 	kill(bigTorah);
@@ -997,7 +1068,7 @@ function initialBigTorah(inWrold){
 		bigTorah = game.add.sprite((game.world.width-BIG_TORAH_WIDTH)/2,game.world.height/2-BIG_TORAH_HEIGHT/2, 'torah', 0);
 		bigTorah.endAnimation = 0;
 	    enableClick(bigTorah, bigTorahClick);
-        setPapers(false);
+//        setPapers(false);
 	}
 	else{
 		bigTorah = game.add.sprite((game.world.width-BIG_TORAH_WIDTH)/2, -BIG_TORAH_HEIGHT, 'torah', 0);
@@ -1062,21 +1133,25 @@ function kill(pic){
 function putArrows(isToPut){
 	kill(leftArrow);
 	kill(rightArrow);
-//	kill(doubleLeftArrow);
-//	kill(doubleRightArrow);
+	kill(doubleLeftArrow);
+	kill(doubleRightArrow);
 	if(isToPut){
-		leftArrow = game.add.sprite(leftScrol.body.x+20,page[0].body.y+PAGE_HEIGHT/3, 'leftArrow', 0);
+		leftArrow = game.add.sprite(leftScrol.body.x+25,page[1].body.y+PAGE_HEIGHT/3, 'leftArrow', 0);
 		enableClick(leftArrow,leftArrowClick);
 		leftArrow.endAnimation = 0;
-		rightArrow = game.add.sprite(rightScrol.body.x+25,page[0].body.y+PAGE_HEIGHT/3, 'rightArrow', 0);
+		rightArrow = game.add.sprite(rightScrol.body.x+20,page[1].body.y+PAGE_HEIGHT/3, 'rightArrow', 0);
 		enableClick(rightArrow,rightArrowClick);
 		rightArrow.endAnimation = 0;
-//		doubleLeftArrow = game.add.sprite(leftScrol.body.x+25-60,page[0].body.y+PAGE_HEIGHT/3, 'doubleLeftArrow', 0);
-//		enableClick(doubleLeftArrow,doubleLeftArrowClick);
-//		doubleLeftArrow.endAnimation = 0;
-//		doubleRightArrow = game.add.sprite(rightScrol.body.x+20+60,page[0].body.y+PAGE_HEIGHT/3, 'doubleRightArrow', 0);
-//		enableClick(doubleRightArrow,doubleRightArrowClick);
-//		doubleRightArrow.endAnimation = 0;
+        if(chapterIndex < allPsukim.length){
+            doubleLeftArrow = game.add.sprite(leftScrol.body.x+25-60,page[1].body.y+PAGE_HEIGHT/3, 'doubleLeftArrow', 0);
+            enableClick(doubleLeftArrow,doubleLeftArrowClick);
+            doubleLeftArrow.endAnimation = 0;
+        }
+        if(chapterIndex > 1){
+            doubleRightArrow = game.add.sprite(rightScrol.body.x+20+60,page[1].body.y+PAGE_HEIGHT/3, 'doubleRightArrow', 0);
+            enableClick(doubleRightArrow,doubleRightArrowClick);
+            doubleRightArrow.endAnimation = 0;
+        }
 	}
 }
 
