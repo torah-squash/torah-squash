@@ -160,43 +160,47 @@
     <script src="src/PixiPatch.js"></script>
 
 </head>
-<body onload="resize_canvas();" onresize="resize_canvas();">
+<body>
 <div id="myGame">
     <!--<img src="../images/logo.png" style="margin: 0 80px;"/>-->
     <!-- <a class="small button" id="changeHand">left hand</a> -->
     <!-- <a class="small button" id="play">play ></a> -->
 </div>
+
 <!--<button onclick="displayWinnerMessage()">win</button>
 <button onclick="displaySorryMessage()">lose</button>-->
 <script src="javascript/globals.js" charset="UTF-8"></script>
-<script src="javascript/Map.js" charset="UTF-8"></script>
+<script src="javascript/popups.js" charset="UTF-8"></script>
 <script src="javascript/LoadingState.js" charset="UTF-8"></script>
-<script src="javascript/IntroductionState.js" charset="UTF-8"></script>
+<script src="javascript/Settings.js" charset="UTF-8"></script>
 <script src="javascript/ChooseGameState.js" charset="UTF-8"></script>
 <script src="javascript/GameBoardState.js" charset="UTF-8"></script>
+<script src="javascript/ScoreTable.js" charset="UTF-8"></script>
+
 <script src="javascript/Game.js" charset="UTF-8"></script>
+
+<a href="/play/#popup">Open Modal</a>
+
+<div id="popup" class="modalDialog">
+	<div>
+		<h2 id="popup_title"></h2>
+		<p id="popup_message"></p>
+        <a class="close" id="popup_0"></a>
+		<a class="close" id="popup_1"></a>
+	</div>
+</div>
 <script>
-    var PROPORTION = GAME_WIDTH / parseFloat(GAME_HEIGHT);
-    function resize_canvas() {
-//        console.log('resize screen');
-//        var myGame = $("#myGame");
-//        var canvas = $("#myGame canvas");
-//        if (window.innerWidth >= GAME_WIDTH && window.innerHeight >= GAME_HEIGHT)
-//        {
-//            // if there are some extra place we keep as source
-//            canvas.width(GAME_WIDTH);
-//            canvas.height(GAME_HEIGHT);
-//        }
-//        else if (window.innerWidth >= window.innerHeight * PROPORTION) {
-//            // if width is bigger we resize by the height
-//            canvas.width(window.innerHeight * PROPORTION);
-//            canvas.height(window.innerHeight);
-//        } else {
-//            // if width is smaller we resize by the width
-//            canvas.width(window.innerWidth);
-//            canvas.height(window.innerWidth / PROPORTION);
-//        }
-    }
+    popups.setMessage(popups.INTERNET_PROBLEM);
+    popups.setOptions(['נסה שוב', 'המשך לשחק'],
+            [function() {
+                window.location.href = location.pathname + "#";
+                //location.refresh();
+            }, function() {
+                popups.CLOSE_HENDLER();
+            }]
+    );
+    //popups.show();
 </script>
+
 </body>
 </html>

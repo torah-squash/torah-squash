@@ -1,11 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
-    <script src="script/model/cell.js"></script>
-    <script src="script/model/board.js"></script>
-</head>
-<body>
+    <title>Torah Squash</title>
+    <script src="../javascript/jquery.js" charset="UTF-8"></script>
+    <style>
+        html, body {
+            margin: 0px;
 
+        }
+
+        #page {
+            width: 1056px;
+            height: 540px;
+            margin: 0px auto;
+            padding: 0px;
+            position: relative;
+        }
+
+        #page li {
+            display: inline;
+        }
+
+        article {
+            position: relative;
+            width: 1056px;
+            height: 540px;
+            margin: 0px auto;
+            background-color: cornflowerblue;
+        }
+
+        #sound {
+            background-image: url("../images/settings/music_on_2.png");
+        }
+
+        #music {
+            background-image: url("../images/settings/music_on_2.png");
+        }
+    </style>
+</head>
+<body style="background-color: darkslategrey;">
+    <ul id="page">
+        <li>
+            <article id="settings_wrap">
+                <label>music</label><button id="music"></button>
+                <label>sound</label><button id="sound"></button>
+            </article>
+        </li>
+    </ul>
 </body>
 </html>

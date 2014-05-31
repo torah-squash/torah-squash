@@ -1,5 +1,5 @@
 application: torah-squash
-version: 4_1
+version: 5_1
 runtime: python27
 api_version: 1
 threadsafe: yes
@@ -18,6 +18,9 @@ handlers:
 - url: /images/login_page
   static_dir: images/login_page
   mime_type: image/login_page/png
+- url: /images/toys
+  static_dir: images/toys
+  mime_type: image/toys/png
 - url: /images
   static_dir: images
   mime_type: image/png
@@ -27,7 +30,12 @@ handlers:
 - url: /photoshoped
   static_dir: photoshoped
   mime_type: photoshoped/png
+- url: /music
+  static_dir: music
+  mime_type: music/mp3
 
+- url: /game/.*
+  script: game.app
 - url: .*
   script: main.app
 

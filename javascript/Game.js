@@ -8,11 +8,13 @@ game = new Phaser.Game(
     GAME_WIDTH, GAME_HEIGHT, Phaser.CANVAS, 'myGame'
 );
 
-// sets game possible states
-game.state.add('bootState', BootState, true); // set default state
+//sets game possible states
+game.state.add('bootState', bootState, true); // set default state
 game.state.add('loadingState', loadingState);
-game.state.add('intoductionState', introductionState);
-game.state.add('shopState', shopState);
-game.state.add('chooseGameState', chooseGameState);
+game.state.add('shopState', board);
+game.state.add('chooseGameState', map);
+game.state.add('settings', settings);
+
+//game.state.add('scoreTableState', scoreTableState, true);
 //game.state.add('chooseGameState', map);
 

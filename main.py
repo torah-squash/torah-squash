@@ -66,7 +66,7 @@ class User(db.Model):
     password = db.StringProperty(default=getRandomPassword())
     groupId = db.StringProperty()
     isAdmin = db.BooleanProperty(default=False)
-    #registrationDate = db.TimeProperty(default=getRegistrationDate())
+    registrationDate = db.TimeProperty(auto_now=True)
     def __str__(self):
         return str(self.username) + "#" + str(self.firstName)\
                 + "#" + str(self.secondName) + "#" + str(self.classString)\
@@ -96,17 +96,6 @@ EMAIL_REGEX = re.compile("[^@]+@[^@]+\.[^@]+")
 
 
 class LoginHandler(webapp2.RedirectHandler):
-    # def get(self):
-        # show login page using templates
-        # session = get_current_session()
-        # message = session.get('message', '')
-        # username = session.get('login-username', '')
-        # name = session.get('name', '')
-        # template_values = {'message': message, 'username': username, 'name': name}
-        # template = JINJA_ENVIRONMENT.get_template('loginOld.html')
-        # self.response.write(template.render(template_values))
-        # session['message'] = ''
-
     def post(self):
         if self.request.get('submit'):
             # remove old information
@@ -125,7 +114,9 @@ class LoginHandler(webapp2.RedirectHandler):
                 session['name'] = user.firstName
                 session['isAdmin'] = user.isAdmin
                 session['message'] = ''
-                # redirect to the same page
+                if user.isAdmin:
+                    self.redirect("/admin/")
+                # redirect to the game page
                 self.redirect("/play/")
             else:
                 session['login-username'] = username
@@ -473,7 +464,7 @@ class LevelStatusHandler(webapp2.RedirectHandler):
         session = get_current_session()
         username = session.get('username', '')
         levels = db.GqlQuery("SELECT * FROM Level WHERE username='" + username + "'" +\
-            " AND path='" + path + "' ORDER BY level;").fetch(18)
+            " AND path='" + path + "' ORDER BY level;").fetch(100)
         description = ""
         if levels is not None and len(levels) != 0:
             description += str(levels[0].score)
