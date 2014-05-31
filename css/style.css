@@ -18,15 +18,15 @@
     margin: 0px auto;
 }
 
-#play 
+#play
 {
     position: relative;
     width: 1054px;
     height: 150px;
-    margin: 0 auto;   
+    margin: 0 auto;
 }
 
-#myGame 
+#myGame
 {
     margin: 0px auto;
     /*height: 100%;*/
@@ -35,7 +35,7 @@
 /* #### Mobile Phones Portrait #### */
 @media screen and (max-device-width: 480px) and (orientation: portrait){
     /* some CSS here */
-    #myGame 
+    #myGame
     {
         width: 100%;
     }
@@ -44,7 +44,7 @@
 /* #### Mobile Phones Landscape #### */
 @media screen and (max-device-width: 640px) and (orientation: landscape){
     /* some CSS here */
-    #myGame 
+    #myGame
     {
         width: 100%;
     }
@@ -53,7 +53,7 @@
 /* #### Mobile Phones Portrait or Landscape #### */
 @media screen and (max-device-width: 640px){
     /* some CSS here */
-    #myGame 
+    #myGame
     {
         width: 100%;
     }
@@ -62,7 +62,7 @@
 /* #### iPhone 4+ Portrait or Landscape #### */
 @media screen and (max-device-width: 480px) and (-webkit-min-device-pixel-ratio: 2){
     /* some CSS here */
-    #myGame 
+    #myGame
     {
         width: 100%;
     }
@@ -71,7 +71,7 @@
 /* #### Tablets Portrait or Landscape #### */
 @media screen and (min-device-width: 768px) and (max-device-width: 1024px){
     /* some CSS here */
-    #myGame 
+    #myGame
     {
         width: 100%;
     }
@@ -80,8 +80,70 @@
 /* #### Desktops #### */
 @media screen and (min-width: 1024px){
     /* some CSS here */
-    #myGame 
+    #myGame
     {
         width: 1024px;
     }
 }
+
+.modalDialog {
+    direction: rtl;
+    position: fixed;
+    font-family: Arial, Helvetica, sans-serif;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99999;
+    opacity:0;
+    -webkit-transition: opacity 400ms ease-in;
+    -moz-transition: opacity 400ms ease-in;
+    transition: opacity 400ms ease-in;
+    pointer-events: none;
+}
+
+.modalDialog:target {
+    opacity:1;
+    pointer-events: auto;
+}
+
+.modalDialog > div {
+    width: 400px;
+    position: relative;
+    margin: 10% auto;
+    padding: 5px 20px 13px 20px;
+    border-radius: 10px;
+    background: #fff;
+    /*background: -moz-linear-gradient(#fff, #999);
+    background: -webkit-linear-gradient(#fff, #999);
+    background: -o-linear-gradient(#fff, #999);*/
+}
+
+.closeButtonPosition {
+    position: absolute;
+    left: -12px;
+    top: -10px;
+    line-height: 25px;
+    text-align: center;
+    width: 24px;
+}
+
+.close {
+    background: #606061;
+    color: #FFFFFF;
+    line-height: 25px;
+    text-align: center;
+    width: 24px;
+    text-decoration: none;
+    font-weight: bold;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+    -moz-box-shadow: 1px 1px 3px #000;
+    -webkit-box-shadow: 1px 1px 3px #000;
+    box-shadow: 1px 1px 3px #000;
+    margin-right: 10px;
+}
+
+.close:hover { background: #00d9ff; }
