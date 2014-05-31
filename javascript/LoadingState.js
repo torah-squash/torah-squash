@@ -5,16 +5,13 @@
 var ANIMATION_TIME = 500, DELAY_TIME = 500;
 var endAnimation, endDelay;
 var circle = null, percentText = null;
-var isLoadingFinished =false;
+var isLoadingFinished = false;
 
-var BootState = {
+var bootState = {
     preload: function() {
     }, create: function() {
     }, update: function() {
-    	//game.state.start('shopState', true, true);
-    	//game.state.start('board', true, true);
-    	//game.state.start('chooseGameState', true, true);
-        game.state.start('loadingState', true, true);
+    	game.state.start('loadingState', true, true);
     }
 };
 
@@ -23,60 +20,47 @@ var isAnimation;
 
 var loadingState = {
     preload : function() {
-        game.load.image('introduction', 'images/introduction.png');
-        //game.load.image('ccccccccccccc', 'photoshoped/circle3.png');
-        game.load.image('t1', 'photoshoped/torah4.png');
-        game.load.image('t2', 'photoshoped/torah_infront.png');
-        game.load.image('backgroundL', 'photoshoped/back.png');
-        game.load.image('torahL', 'photoshoped/torah4.png');
-        game.load.image('torah_logo', 'photoshoped/torah_logo4.png');
-        game.load.image('squash_logo', 'photoshoped/squash_logo.png');
-        game.load.image('torah_icon', 'photoshoped/torah_icon.png');
-        //game.load.image('torah222', 'http://placebear.com/1000/1000');
-//choosegameState images:
-            game.load.image('background', 'images/back.png');
-            game.load.image('rightBackgroundCut', 'images/right_hide.png');
-    game.load.image('torah', 'images/torah.png');
-    game.load.image('leftScrol', 'images/left_scrol.png');
-    game.load.image('rightScrol', 'images/right_scrol.png');
-    game.load.image('torahFront', 'images/torah_front.png');
-    game.load.image('page','images/page.png');
-    game.load.image('leftArrow','images/left_arrow.png');
-    game.load.image('rightArrow','images/right_arrow.png');
-    game.load.image('doubleLeftArrow','images/left_arrow.png');
-    game.load.image('doubleRightArrow','images/right_arrow.png');
-    game.load.image('backOn','images/back_on.png');
-    game.load.image('backOff', 'images/back_off.png');
-    game.load.image('star3', 'images/3stars.png');
-    game.load.image('star2', 'images/2stars.png');
-    game.load.image('star1', 'images/1stars.png');
-    game.load.image('star0', 'images/0stars.png');
-    game.load.image('star-1','images/lock.png');
-    game.load.image('lock','images/lock.png');
-    game.load.image('unlock','images/unlock.png');
-    //gameboardState images:
-        //	game.load.image('background', 'images/back.png');
-	game.load.image('backOn', 'images/back_on.png');
-	game.load.image('backOff', 'images/back_Off.png');
-//    game.load.image('winner', 'images/compliments/winner.png');
-//    game.load.image('sorry', 'images/compliments/sorry.png');
-	game.load.image('cell','images/empty-cell.png');//cell.png');
-	game.load.image('selectedCell','images/selected_cell2.png');
-    game.load.image('winner','images/well_done.png');
-    game.load.image('looser','images/failed.png');
-    game.load.image('hint','images/hint.png');
-    game.load.image('hintClicked','images/hint_clicked.png');
-    game.load.image('showPasuk','images/show_pasuk.png');
-    game.load.image('showPasukClicked','images/show_pasuk_clicked.png');
+        try {
+            game.load.image('introduction', 'images/introduction.png');
+            game.load.image('t1', 'photoshoped/torah4.png');
+            game.load.image('t2', 'photoshoped/torah_infront.png');
+            game.load.image('backgroundL', 'photoshoped/back.png');
+            game.load.image('torahL', 'photoshoped/torah4.png');
+            game.load.image('torah_logo', 'photoshoped/torah_logo4.png');
+            game.load.image('squash_logo', 'photoshoped/squash_logo.png');
+            game.load.image('torah_icon', 'photoshoped/torah_icon.png');
 
-	game.load.image('kad','images/toys/kad.png');
-	game.load.image('shofar','images/toys/shofar.png');
-	game.load.image('menora','images/toys/menora.png');
-	game.load.image('ozenhaman','images/toys/ozen_haman.png');
-	game.load.image('donut','images/toys/donut.png');
-	game.load.image('matza','images/toys/matza.png');
-	game.load.image('rimon','images/toys/rimon.png');
-	game.load.image('sevivon','images/toys/sevivon.png');
+            //choosegameState images:
+            map.preloadState();
+
+            //gameboardState images:
+            board.preloadState();
+
+            popups.setMessage(popups.INTERNET_PROBLEM);
+            popups.setOptions(['נסה שוב'], [popups.CLOSE_HENDLER]);
+
+//            if(waitForLevel) {
+//                console.log('waiting..')
+//                setTimeout(function() {
+//                    if(waitForLevel) {
+//                        popups.show();
+//                        waitForLevel = false;
+//                    }
+//                }, 3000);
+//            }
+        } catch (err) {
+            popups.setMessage(popups.INTERNET_PROBLEM);
+            popups.setOptions(['נסה שוב'],
+                    [function() {
+                        location.refresh();
+                    }]
+            );
+            popups.show();
+            return;
+        }
+
+
+//        settings.preloadState();
 
         game.stage.backgroundColor = '#3a3a3a';
         var filesLoaded = game.load.totalLoadedFiles(), filesNumber = filesLoaded + game.load.totalQueuedFiles();
@@ -99,7 +83,7 @@ var loadingState = {
     }, updateProgress: function(progress) {
         // do some math:
         var presents = progress;
-        var proportion = 1.2 * presents / 100.0 + 0.3; // time + 1
+        var proportion = 1.2 * presents / 100.0 + 0.3;
         // update game screen:
         drawCircle(progress);
         percentText.content = presents.toString() + "%";
@@ -112,16 +96,12 @@ var loadingState = {
             torah_icon.opacity = 0;
             game.add.tween(logo_torah_title).to({ x:  game.world.centerX - 330}, ANIMATION_TIME, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
             game.add.tween(logo_squash_title).to({ x:  game.world.centerX + 150}, ANIMATION_TIME, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
-            //game.add.tween(torah_icon).to({ opacity:  1}, ANIMATION_TIME, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
             isAnimation = true;
         } else if (game.time.now <= endAnimation) {
             logo_torah_title.visible = true;
             logo_squash_title.visible = true;
             torah_icon.visible = true;
-            //logo_torah_title.body.velocity.x = -500 + (ANIMATION_TIME - (endAnimation - game.time.now)) / ANIMATION_TIME * 470;
-
         } else {
-            //torah_icon.visible = true;
             percentText.content = "touch to play";
             percentText.x = game.world.centerX - percentText.content.length * 20 / 2.0 + 20;
             game.input.onDown.add(nextState, this);
@@ -140,8 +120,7 @@ function drawCircle(progress) {
 function nextState() {
     killLoadingState();
     // redirect to next state
-    //game.state.start('chooseGameState', true, true);
-    game.state.start('intoductionState', true, true);
+    game.state.start('chooseGameState', true, true);
 }
 function killLoadingState(){
     destroy(percentText);
@@ -151,42 +130,7 @@ function killLoadingState(){
 
 }
 
-function destroy(text){
-	if(text != null){
-		text.destroy();
-	}
-    text = null;
-}
-
-
 /*
-
-// Old update function:
-
-if( game.time.now <= endLoading ) { // while loading the images
-    // do some math:
-    var proportion = 0.6 * (LOADING_DURATION - (endLoading - game.time.now)) / LOADING_DURATION + 0.3; // time + 1
-    var presents = Math.min(Math.round(proportion * 100 / 0.85), 100);
-    var proportion = 0.6 * presents / 100.0 + 0.3; // time + 1
-    // update game screen:
-    circle.scale.setTo(proportion, proportion); // resize the proportion of the circle image
-    circle.body.x = game.world.centerX - circle.body.width / 2.0;
-    percentText.content = presents.toString() + "%";// + " " + Loader.get;
-    percentText.x = game.world.centerX - percentText.content.length * 20 / 2.0;
-    if (presents == 100) {
-        endAnimation = game.time.now + ANIMATION_TIME;
-    }
-}
-else if ( game.time.now <= endAnimation ) {
-
-} else {
-    percentText.content = "touch to play";
-    percentText.x = game.world.centerX - percentText.content.length * 20 / 2.0 + 20;
-    game.input.onDown.add(nextState, this);
-}
-
-
- */
 var psukim = [
 "וידבר א-לוהים את כל הדברים האלה לאמור",
 "אנוכי ה' א-לוהיך אשר הוצאתיך מארץ מצריים מבית עבדים\n לא יהיה לך א-לוהים אחרים על פניי",
@@ -6084,4 +6028,4 @@ var allPsukim = [
 "ולא קם נביא עוד בישראל כמשה אשר ידעו ה' פנים אל פנים",
 "לכל האותות והמופתים אשר שלחו ה' לעשות בארץ מצריים לפרעה\n ולכל עבדיו ולכל ארצו",
 "ולכול היד החזקה ולכול המורא הגדול אשר עשה משה לעיני כל ישראל"
-]];
+]];*/
