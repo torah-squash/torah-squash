@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="../javascript/jquery.js" charset="UTF-8"></script>
+    <script src="../javascript/popups.js" charset="UTF-8"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <title></title>
+    <style>
+        #bar {
+            padding: 0px;
+            background-color: black;
+            width: 1056px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        #bar li {
+            display: inline;
+            display: inline-block;
+            background-color: #000000;
+            background-image: url("../images/settings/music2.png");
+            width: 40px;
+            height: 40px;
+        }
+
+        #logout {
+            background-position: -200px 0px;
+            margin-left: 27px;
+
+        }
+
+        #tools {
+            background-position: -80px 0px;
+            margin-left: 37px;
+        }
+
+        #prize {
+            background-position: -120px 0px;
+            margin-left: 753px;
+        }
+
+        #plus {
+            background-position: -160px 0px;
+            margin-left: 37px;
+        }
+
+        .bar_option_arrow {
+            position: relative;
+            background-image: url("../images/settings/music2.png");
+            background-position: -240px 0px;
+            margin-left: 37px;
+            width: 40px;
+            height: 20px;
+            top: 45px;
+            left: -40px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul id="bar">
+            <li id="logout">
+            </li>
+            <li id="tools">
+            </li>
+            <li id="prize">
+            </li>
+            <li id="plus">
+                <section class="bar_option_arrow"></section>
+                <section class="options"></section>
+            </li>
+        </ul>
+    </nav>
+    <div id="popup" class="modalDialog">
+        <div>
+            <h2 id="popup_title">תוכן לא עדכני</h2>
+            <p id="popup_message">ההודעה מכילה תוכן לא עדכני</p>
+            <a class="close" id="popup_0">אוקי</a>
+            <a class="close" id="popup_1"></a>
+        </div>
+        <script>
+            // in case of refresh app while not ready
+            $( '#popup_0' ).click(popups.CLOSE_HENDLER);
+        </script>
+    </div>
+    <script>
+    var isMouseInside = false;
+    $( document).ready( function() {
+        $( ".bar_option_arrow" ).css('visibility', 'hidden');
+    });
+    $('#bar li').mouseover(function() {
+        isMouseInside = true;
+        $( this ).find( ".bar_option_arrow" ).css('visibility', 'visible');
+    })
+    .mouseout(function() {
+        if (!isMouseInside) {
+            // returns the options as they were before
+            $('#bar li').mouseout(function() {
+                $( this ).find( ".bar_option_arrow" ).css('visibility', 'hidden');
+            });
+        }
+    });
+
+//    $( ".bar_option_arrow").mouseover(function() {
+//        $( this ).css('visibility', 'visible');
+//    })
+//    .mouseout(function() {
+//        $( this ).css('visibility', 'hidden');
+//    });
+
+    $( '#logout').click(function() {
+        popups.setMessage(popups.BEFORE_EXIT_APP_QUESTION);
+        popups.setOptions(['לא', 'כן'],
+                [function() { popups.CLOSE_HENDLER(); }, function() {
+                    window.location = window.location.pathname.replace('/play/', '/logout/');
+                    popups.CLOSE_HENDLER();
+                }]
+        );
+        popups.show();
+    });
+    </script>
+</body>
+</html>
