@@ -161,16 +161,39 @@
 
 </head>
 <body>
+    <nav id="bar_wrap">
+        <ul id="bar_left">
+            <li class="bar_li" id="logout"></li>
+            <li class="bar_li" id="tools"></li>
+            <li class="bar_li" id="return"></li>
+        </ul>
+        <ul id="bar_right">
+            <li class="bar_li" id="prize"></li>
+            <li class="bar_li" id="plus">
+                <section class="bar_option_arrow"></section>
+                <section class="options">
+                    <ul id="sub_options">
+                        <li><a href="/play/#">נהל קבוצות</a></li>
+                        <li><a href="/play/#">חברים</a></li>
+                    </ul>
+                </section>
+            </li>
+        </ul>
+    </nav>
 <div id="myGame">
+    <audio controls loop autoplay id="audio">
+        <source src="../music/c.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+    </audio>
     <!--<img src="../images/logo.png" style="margin: 0 80px;"/>-->
     <!-- <a class="small button" id="changeHand">left hand</a> -->
     <!-- <a class="small button" id="play">play ></a> -->
 </div>
-
 <!--<button onclick="displayWinnerMessage()">win</button>
 <button onclick="displaySorryMessage()">lose</button>-->
 <script src="javascript/globals.js" charset="UTF-8"></script>
 <script src="javascript/popups.js" charset="UTF-8"></script>
+<script src="javascript/bar.js" charset="UTF-8"></script>
 <script src="javascript/LoadingState.js" charset="UTF-8"></script>
 <script src="javascript/Settings.js" charset="UTF-8"></script>
 <script src="javascript/ChooseGameState.js" charset="UTF-8"></script>
@@ -179,28 +202,57 @@
 
 <script src="javascript/Game.js" charset="UTF-8"></script>
 
-<a href="/play/#popup">Open Modal</a>
-
 <div id="popup" class="modalDialog">
-	<div>
-		<h2 id="popup_title"></h2>
-		<p id="popup_message"></p>
-        <a class="close" id="popup_0"></a>
-		<a class="close" id="popup_1"></a>
-	</div>
+    <div>
+        <h2 id="popup_title">תוכן לא עדכני</h2>
+        <p id="popup_message">ההודעה מכילה תוכן לא עדכני</p>
+        <a class="close" id="popup_0">אוקי</a>
+        <a class="close" id="popup_1"></a>
+    </div>
+    <script>
+        // in case of refresh app while not ready
+        $( '#popup_0' ).click(popups.CLOSE_HENDLER);
+    </script>
+    <script>
+//        $( '.bar_li').css('visibility', 'hidden');
+        bar.showButtons([bar.EXIT], [bar.EXIT_HANDLER]);
+//    var isPlusClicked = false;
+//    $( document).ready( function() {
+//        setPlus($('#plus'), isPlusClicked);
+//    });
+//
+//    function setPlus(object, visible) {
+//        if (visible) {
+//            $( object ).find( ".bar_option_arrow" ).css('visibility', 'visible');
+//            $( object ).find( ".options" ).css('visibility', 'visible');
+//        } else {
+//            $( object ).find( ".bar_option_arrow" ).css('visibility', 'hidden');
+//            $( object ).find( ".options" ).css('visibility', 'hidden');
+//        }
+//    }
+//
+//    $('.bar_li').click(function() {
+//        isPlusClicked = (this.id == "plus")?(!isPlusClicked):false;
+//        setPlus($('#plus'), isPlusClicked);
+//    });
+//
+//    $( '#logout').click(function() {
+//        popups.setMessage(popups.BEFORE_EXIT_APP_QUESTION);
+//        popups.setOptions(['לא', 'כן'],
+//                [function() { popups.CLOSE_HENDLER(); }, function() {
+//                    window.location = window.location.pathname.replace('/play/', '/logout/');
+//                    popups.CLOSE_HENDLER();
+//                }]
+//        );
+//        popups.show();
+//    });
+//
+//    $( '#tools').click(function() {
+//       if (game != null) {
+//           game.state.start('settings', true, true);
+//       }
+//    });
+    </script>
 </div>
-<script>
-    popups.setMessage(popups.INTERNET_PROBLEM);
-    popups.setOptions(['נסה שוב', 'המשך לשחק'],
-            [function() {
-                window.location.href = location.pathname + "#";
-                //location.refresh();
-            }, function() {
-                popups.CLOSE_HENDLER();
-            }]
-    );
-    //popups.show();
-</script>
-
 </body>
 </html>

@@ -12,6 +12,9 @@
  *  
  * 
  */
+var perekLabel = null;
+var srcPasukLocation = 0;
+var isThereAnyPair = true;
 var SELECTED_ANGLE = 5;
 var pasukSplited = null;
 var doneOnThisStep = 0;
@@ -56,6 +59,7 @@ var style = { font: "30pt Arial", fill: "Blue", stroke: "White", strokeThickness
 var PASUK_STYLE = { font: "22pt Courier", fill: "#000000", stroke: "#004444", strokeThickness: 2 ,align: "center", textAlign: "RTL"};
 var STEPS_STYLE = { font: "28pt Arial", fill: "Red", stroke: "Blue", strokeThickness: 1 };
 var LEVEL_STYLE = { font: "28pt Arial", fill: "Yellow", stroke: "Blue", strokeThickness: 1 };
+var PEREK_STYLE = { font: "28pt Arial", fill: "Blue", stroke: "Blue", strokeThickness: 1 };
 var SCORE_STYLE = { font: "28pt Arial", fill: "Purple", stroke: "Blue", strokeThickness: 1 };
 var NUM_ROWS = 7, NUM_COLUMNS = 12;
 var CELL_SIZE = 50;
@@ -67,7 +71,7 @@ var steps = 30, ANGLE_CONST = 20;
 var startedFill = false;
 var cellsToMove = null;
 var stepsLabel = null;
-var COLORS_ARRAY = ['#ff0000','#00ff00','#0000ff','#ffff00','#ff00ff','Orange'];//,'Black'];
+var COLORS_ARRAY = ['#ff0000','#00ff00','#0000ff','#ffff00'];//,'#ff00ff','Orange'];//,'Black'];
 var LETTERS_ARRAY = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
 var CONST_LETTERS_ARRAY = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
 var mixedLettersArray = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
@@ -116,6 +120,9 @@ var RESIZE_POINTS_STYLES = [
               ];
 
 function initVariablesBoardState() {
+    perekLabel = null;
+    srcPasukLocation = 0;
+    isThereAnyPair = true;
     pasukSplited = null;
     helpIndex = 0;
     doneOnThisStep = 0;
@@ -167,6 +174,39 @@ function initVariablesBoardState() {
     pasukMatrix = null;
     levelLabel = null;
     gameBackground = null;
+//    game.inputEnabled = true;
+//    game.input.onkeydown(function() {
+//        console.log('key down');
+//    });
+//    game.onkeyup(function() {
+//        console.log('key up');
+//    });
+//    hhh = true;
+}
+//var hhh = false;
+//$( '#myGame' ).click(function(e) {
+//    if (hhh) {
+//        var pos = {x: e.pageX - $( '#myGame' ).css('right'), y: e.pageY - $( '#myGame' ).css('top')};
+//        alert(pos.x + " " + pos.y);
+////        if (getCellByPosition(pos) != null) {
+////            console.log('click on cell!!!')
+////        }
+//    }
+//});
+
+function getCellByPosition(pos) {
+    console.log('here');
+    for (var i = 0 ; i < board.length; i++) {
+        for (var j = 0; j < board[0].length; j++) {
+            if (pos.x >= board[i][j].letter.x && pos.x <= board[i][j].letter.width
+                && pos.y >= board[i][j].letter.y && pos.y <= board[i][j].letter.height) {
+                alert('click on letter: ' + board[i][j].char);
+                return cell;
+            }
+            // TODO check if inside
+        }
+    }
+    return null;
 }
 
 var board = {
@@ -204,8 +244,8 @@ var board = {
         console.log(levelClicked+","+chapterIndex);
         var countChars = pasuk.length - countExtraSpace(pasuk);
         console.log("extra: " + countChars);
-        steps = parseInt(/*2.7*/3*Math.sqrt(countChars) - levelClicked/2 - chapterIndex);
-        console.log("steps:"+steps);
+        steps = parseInt(2.7*Math.sqrt(countChars) - levelClicked/2 - chapterIndex);
+        console.log("steps: "+steps);
         if(steps < countChars/4){
             steps = parseInt(countChars/4 + 5);
         }
@@ -216,10 +256,12 @@ var board = {
     //    }
         initializedSteps = steps;
         cutPasuk(10);
-        levelLabel = game.add.text(20,240,":שלב \n"+levelClicked,LEVEL_STYLE);
+        perekLabel = game.add.text(20,240,":פרק" + "\n" + chapterIndex,PEREK_STYLE);
+        levelLabel = game.add.text(20,315,":שלב \n"+levelClicked,LEVEL_STYLE);
         scoreLabel = game.add.text(20,90,":ניקוד \n"+score, SCORE_STYLE);
         createCells();
         removeSetsInBeginning();
+        moveTheBoardToTopOfGame();
         initialFlags();
         addLettersToArray('pasuk twice');
         putPasukLettersToArray();
@@ -229,11 +271,41 @@ var board = {
         enableClick(showPasukImg,showPasukClick);
         setUndoButton(true);
         setBeckgoundToTop();
-
+//        console.log('set empty array');
+//        bar.showButtons([], []);
+        bar.showButtons([bar.EXIT, bar.RETURN], [
+            function() {
+                cancleAll();
+                popups.setMessage(popups.BEFORE_EXIT_APP_QUESTION);
+                popups.setOptions(['לא', 'כן'],
+                        [function() { popups.CLOSE_HENDLER(); enableAll(); }, function() {
+                            window.location = window.location.pathname.replace('/play/', '/logout/');
+                            popups.CLOSE_HENDLER();
+                        }]
+                );
+                popups.show();
+            }, function() {
+                cancleAll();
+                popups.setMessage(popups.BEFORE_EXIT_LEVEL_QUESTION);
+                popups.setOptions(['לא', 'כן'], [
+                    function() {
+                        popups.CLOSE_HENDLER(); enableAll();
+                    }, function() {
+                        $.get( "../leave-level/", function( data ) {
+                            // do nothing
+                        });
+                        killEverythingToExitState();
+                        game.state.start('chooseGameState', true, true);
+                        popups.CLOSE_HENDLER();
+                    }
+                ]);
+                popups.show();
+            }
+        ]);
     },
 
     update: function() {
-        if(globalEndAnimation < game.time.now){
+        if(globalEndAnimation < game.time.now){// || stateI == 'winner'){
             turnSelected();
             switch(stateI){
             case 'first':
@@ -355,7 +427,7 @@ function cancleState(){
 }
 var didCheckPasuk = false;
 function showPasukClick(){
-    if (didCheckPasuk == false && score < 1000) {
+    if (didCheckPasuk == false && score < MIN_SHOW_PASUK_POINTS) {
         cancleAll();
         popups.setMessage(popups.NOT_ENUGHT_POINTS_FOR_SHOW_VERSE);
         popups.setOptions(['אוקי'], [function() {
@@ -365,21 +437,29 @@ function showPasukClick(){
         popups.show();
         return false;
     }
-    else if(score >= 1000 && didCheckPasuk == false){
+    else if(score >= MIN_SHOW_PASUK_POINTS && didCheckPasuk == false){
         stateI = 'showPasukClick';
         didCheckPasuk = true;
         return false;
     }
+
     if(startedShowPasuk == false && stateI == 'showPasukClick'){
         cancleAll();
         startedShowPasuk = true;
         toShowFullPasuk = true;
-        endShowPasukTime = game.time.now + SHOW_PASUK_TIME*TIME_INTERVAL;
-        globalEndAnimation = endShowPasukTime;
+        globalEndAnimation = game.time.now + SHOW_PASUK_TIME*TIME_INTERVAL;
         showPasukImgClicked = game.add.sprite(SHOW_PASUK_LOC_X,HINT_LOC_Y,'showPasukClicked');
-        score -= 1000;
+        score -= MIN_SHOW_PASUK_POINTS;
         updateScoreLable();
         setBeckgoundToTop();
+        srcPasukLocation = pasukLabel.y;
+        game.add.tween(pasukLabel).to({y: BOARD_LOCATION_Y/2}, SHOW_PASUK_TIME*TIME_INTERVAL, Phaser.Easing.Quadratic.OutIn, true, 0, 0, false);
+        return false;
+    }
+    else if(srcPasukLocation > 0){
+        game.add.tween(pasukLabel).to({y: srcPasukLocation}, SHOW_PASUK_TIME*TIME_INTERVAL, Phaser.Easing.Quadratic.OutIn, true, 0, 0, false);
+        globalEndAnimation = game.time.now + SHOW_PASUK_TIME*TIME_INTERVAL;
+        srcPasukLocation = 0;
         return false;
     }
     else {
@@ -392,6 +472,47 @@ function showPasukClick(){
         stateI = 'null';
     }
 }
+
+//function showPasukClick(){
+//    if (didCheckPasuk == false && score < 1000) {
+//        cancleAll();
+//        popups.setMessage(popups.NOT_ENUGHT_POINTS_FOR_SHOW_VERSE);
+//        popups.setOptions(['אוקי'], [function() {
+//            enableAll();
+//            popups.CLOSE_HENDLER();
+//        }]);
+//        popups.show();
+//        return false;
+//    }
+//    else if(score >= 1000 && didCheckPasuk == false){
+//        stateI = 'showPasukClick';
+//        didCheckPasuk = true;
+//        return false;
+//    }
+//    if(startedShowPasuk == false && stateI == 'showPasukClick'){
+//        cancleAll();
+//        startedShowPasuk = true;
+//        toShowFullPasuk = true;
+//        endShowPasukTime = game.time.now + SHOW_PASUK_TIME*TIME_INTERVAL;
+//        globalEndAnimation = endShowPasukTime;
+//        showPasukImgClicked = game.add.sprite(SHOW_PASUK_LOC_X,HINT_LOC_Y,'showPasukClicked');
+//        score -= 1000;
+//        updateScoreLable();
+//        setBeckgoundToTop();
+//        return false;
+//    }
+//    else {
+//        toShowFullPasuk = false;
+//        kill(showPasukImgClicked);
+//        enableAll();
+//        setBeckgoundToTop();
+//        startedShowPasuk = false;
+//        didCheckPasuk = false;
+//        stateI = 'null';
+//    }
+//}
+
+
 function activeHint(){
     if (pair == null && score < 100) {
         cancleAll();
@@ -500,6 +621,10 @@ function switchCaseOfPlayPoints(){
 function switchCaseOfFillUp(){
 	if(fillUp() == false);
 	else{
+        if(getPair() == null){
+            //theres no more moves!!!
+            isThereAnyPair = false;
+        }
 		cellState = 'turnAngle';
 	}	
 }
@@ -864,8 +989,8 @@ function setBeckgoundToTop(){
 		stepsLabel.destroy();
 	}
 	stepsLabel = game.add.text(20,165,":נותרו \n"+steps,STEPS_STYLE);
-	backOn.bringToTop();
-	backOff.bringToTop();
+//	backOn.bringToTop();
+//	backOff.bringToTop();
 }
 
 function setGameIfGameOver(){
@@ -881,7 +1006,9 @@ function setGameIfGameOver(){
 	return true;
 }
 function displayWinnerMessage() {
+        var endTime = 2;
     if(endLabel == null){
+        killJokersAndGetPoints();
         score += steps*1000;
         updateScoreLable();
         $.get( "../submit-level/?score=" + score.toString(), function( data ) {
@@ -891,9 +1018,6 @@ function displayWinnerMessage() {
         if(levels != "") {
             levelSplit = levels.split(",");
         }
-
-        levelCounter = currentLevel;
-
         console.log(levelSplit.length +"."+levelCounter);
         if(levelSplit.length + 1 == levelCounter){
             if (levels != "") {
@@ -915,22 +1039,32 @@ function displayWinnerMessage() {
             }
         }
         console.log("levels:" + levels);
-        currentLevel = levels.split(',').length;
+//        currentLevel = levels.split(',').length;
         console.log("levels have been updated: " + levels);
-        var endTime = 2;
-        killJokersAndGetPoints();
-        endLabel = game.add.sprite((GAME_WIDTH-END_WIDTH)/2,-END_HEIGHT,'winner');
-        game.add.tween(endLabel).to({y: (GAME_HEIGHT-END_HEIGHT)/2}, endTime*TIME_INTERVAL, Phaser.Easing.Quadratic.OutIn, true, 0, 0, false);
+//        endLabel = game.add.sprite((GAME_WIDTH-END_WIDTH+END_WIDTH)/2,(GAME_HEIGHT-END_HEIGHT+END_HEIGHT)/2,'winner');
+        explodeBoard(endTime);
+        endLabel = game.add.sprite((GAME_WIDTH-END_WIDTH+END_WIDTH)/2,-END_HEIGHT,'winner');
+        endLabel.anchor.setTo(0.5,0.5);
+//        endLabel.scale.setTo(0.6);
+        game.add.tween(endLabel).to({y: (GAME_HEIGHT-END_HEIGHT)/2}, endTime*TIME_INTERVAL, Phaser.Easing.Quadratic.in, true, 5, 0, false);
         endLabel.endAnimation = game.time.now + endTime*TIME_INTERVAL;
         if(globalEndAnimation < endLabel.endAnimation){
             globalEndAnimation = endLabel.endAnimation;
         }
     }
+//    else if(globalEndAnimation > game.time.now){
+//        turnAndResizeLabel(endLabel,(globalEndAnimation-game.time.now)/(endTime*TIME_INTERVAL));
+//    }
     else{
         killEverythingToExitState();
         game.state.start('chooseGameState', true, true);
     }
 }
+function turnAndResizeLabel(pic,fraction){
+    pic.angle = fraction*3*360;
+    //    pic.scale.setTo(2);
+}
+
 function displaySorryMessage() {
     if(endLabel == null){
         $.get( "../leave-level/", function( data ) {
@@ -938,7 +1072,8 @@ function displaySorryMessage() {
         });
         var endTime = 2;
         endLabel = game.add.sprite((GAME_WIDTH-END_WIDTH)/2,-END_HEIGHT,'looser');
-        game.add.tween(endLabel).to({y: (GAME_HEIGHT-END_HEIGHT)/2}, endTime*TIME_INTERVAL, Phaser.Easing.Quadratic.OutIn, true, 0, 0, false);
+        game.add.tween(endLabel).to({y: (GAME_HEIGHT-END_HEIGHT)/2}, endTime*TIME_INTERVAL, Phaser.Easing.Quadratic.In, true, 5, 0, false);
+        fallBoard(endTime);
         endLabel.endAnimation = game.time.now + endTime*TIME_INTERVAL;
         if(globalEndAnimation < endLabel.endAnimation){
             globalEndAnimation = endLabel.endAnimation;
@@ -1023,39 +1158,39 @@ function setSpeedToFallingCells(cells){
 	}
 }
 function setUndoButton(check){
-	if(backOn != null){
-		if(check){
-			backOn.body.x = 0;
-			backOn.body.y = 0;
-			backOff.body.x = game.world.width;
-			backOff.body.y = game.world.height;
-		}
-		else{
-			backOn.body.x = game.world.width;
-			backOn.body.y = game.world.height;
-			backOff.body.x = 0;
-			backOff.body.y = 0;
-		}
-	}
-	else{
-		if(check){
-		    backOn = game.add.sprite(0,0, 'backOn', 0);
-		    backOn.endAnimation = 0;
-		    backOff = game.add.sprite(game.world.width,game.world.height, 'backOff', 0);
-		    backOff.endAnimation = 0;
-		}
-		else{
-		    backOn = game.add.sprite(game.world.width,game.world.height, 'backOn', 0);
-		    backOn.endAnimation = 0;
-		    backOff = game.add.sprite(0,0, 'backOff', 0);
-		    backOff.endAnimation = 0;
-		}
-	    backOn.scale.setTo(0.5, 0.5); // 50% of the source image size
-	    backOff.scale.setTo(0.5, 0.5); // 50% of the source image size
-	}
-    enableClick(backOn, undoClickC);
+//	if(backOn != null){
+//		if(check){
+//			backOn.body.x = 0;
+//			backOn.body.y = 0;
+//			backOff.body.x = game.world.width;
+//			backOff.body.y = game.world.height;
+//		}
+//		else{
+//			backOn.body.x = game.world.width;
+//			backOn.body.y = game.world.height;
+//			backOff.body.x = 0;
+//			backOff.body.y = 0;
+//		}
+//	}
+//	else{
+//		if(check){
+//		    backOn = game.add.sprite(0,0, 'backOn', 0);
+//		    backOn.endAnimation = 0;
+//		    backOff = game.add.sprite(game.world.width,game.world.height, 'backOff', 0);
+//		    backOff.endAnimation = 0;
+//		}
+//		else{
+//		    backOn = game.add.sprite(game.world.width,game.world.height, 'backOn', 0);
+//		    backOn.endAnimation = 0;
+//		    backOff = game.add.sprite(0,0, 'backOff', 0);
+//		    backOff.endAnimation = 0;
+//		}
+//	    backOn.scale.setTo(0.5, 0.5); // 50% of the source image size
+//	    backOff.scale.setTo(0.5, 0.5); // 50% of the source image size
+//	}
+//    enableClick(backOn, undoClickC);
 }
-function undoClickC(){
+function undoClickC() {
     cancleAll();
     popups.setMessage(popups.BEFORE_EXIT_LEVEL_QUESTION);
     popups.setOptions(['לא', 'כן'],
@@ -1343,9 +1478,25 @@ function createCells(){
 
 }
 
+function moveTheBoardToTopOfGame(){
+    for(var i = 0 ; i < NUM_ROWS ; i++){
+        for(var j = 0 ; j < NUM_COLUMNS ; j++){
+            board[i][j].body.y -= game.world.height;
+            board[i][j].letter.y -= game.world.height;
+            setSpeedCellY(board[i][j],board[i][j].body.y + game.world.height,board[i][j].letter.y + game.world.height,2 - (i+3)*0.03 - (j+2)*0.1);
+        }
+    }
+}
+
+
 function removeSetsInBeginning(){
     var countTimes = 6;
     sets = getSets(getVectors(),true);
+    if(sets.length == 0){
+        if(getPair() == null){
+            makeAllToBeInSet();
+        }
+    }
     while(sets.length > 0 && countTimes > 0){
         countTimes--;
         for(var i = 0 ; i < sets.length ; i++){
@@ -1358,7 +1509,6 @@ function removeSetsInBeginning(){
         sets = getSets(getVectors(),true);
     }
 }
-
 function cutPasuk(numChars){
 	index = numChars;
 	while(index < pasuk.length){
@@ -1370,12 +1520,12 @@ function cutPasuk(numChars){
 			index += numChars;
 		}
 	}
-
+	
 }
 function enableAll(){
-	if(isAllEnabled == false){
+	if(isAllEnabled == false){	
 		isAllEnabled = true;
-        enableClick(hintImg, activeHint);
+        enableClick(hintImg,activeHint);
         enableClick(showPasukImg,showPasukClick);
 		for(var i = 0 ; i < NUM_ROWS ; i++){
 			for(var j = 0 ; j < NUM_COLUMNS ; j++){
@@ -1386,10 +1536,18 @@ function enableAll(){
 		}
 	}
 }
+var mouse;
 function enableClick(pic,func){
 	if(pic != null){
 		pic.inputEnabled = true;
-		pic.events.onInputDown.add(func,this);
+        pic.events.onInputUp.add(func, this);
+
+//        pic.input.start(0, true);
+//        pic.input.enableDrag();
+//        pic.input.allowHorizontalDrag = false;
+
+//        pic.events.
+        // TODO add input up
 //        pic.events.onInputUp.add(func,this);
         //pic.event.ontap;
 //        pic.events.onDown.add(func,this);
@@ -1425,7 +1583,7 @@ function initialFlags(){
 function kill(pic){
 	if(pic != null){
 		pic.kill();
-		pic == null;
+		pic == null;		
 	}
 }
 function killCell(cell){
@@ -1511,6 +1669,8 @@ function getMatchPoints(argSet,setLength,inPasuk){
             return POINTS*10;
         case '#':
             return POINTS*10;
+        case '_':
+            return POINTS*5;
         default:
             return POINTS;
     }
@@ -1544,7 +1704,7 @@ function getMissingLetter(){
 function killPair(){
 	if(pair != null){
 		kill(pair[0].selectedImg);
-		kill(pair[1].selectedImg);
+		kill(pair[1].selectedImg);		
 	}
     kill(clickedHint);
     pair = null;
@@ -1635,14 +1795,15 @@ function killBoard(){
 }
 
 function killEverythingToExitState(){
-     kill(backOn);
-    kill(backOff);
+//    kill(backOn);
+//    kill(backOff);
     kill(endLabel);
     killBoard();
-    destroy(stepsLabel);
-    destroy(pasukLabel);
-    destroy(scoreLabel);
-    destroy(levelLabel);
+//    destroy(stepsLabel);
+//    destroy(pasukLabel);
+//    destroy(scoreLabel);
+//    destroy(levelLabel);
+//    destroy(perekLabel);
     kill(hideBackground);
     kill(winnerPic);
     kill(gameBackground);
@@ -1756,4 +1917,74 @@ function turnSelected(){
             pair[1].selectedImg.angle -= 360;
         }
     }
+}
+
+function getRandomLocOut(){
+    var x,y;
+    var rand = Math.random();
+    if(rand >= 0.5){
+        rand = Math.random();
+        y = rand*game.world.height;
+        rand = Math.random();
+        if(rand >= 0.5){
+            x = game.world.width + CELL_SIZE;
+        }
+        else{
+            x = -CELL_SIZE;
+        }
+    }
+    else{//rand <=0.5
+        rand = Math.random();
+        x = rand*game.world.width;
+        rand = Math.random();
+        if(rand >= 0.5){
+            y = game.world.height + CELL_SIZE;
+        }
+        else{
+            y = -CELL_SIZE;
+        }
+    }
+    return [x,y];
+}
+
+function explodeBoard(time){
+    kill(hideBackground);
+    var arr,cell;
+    for(var i = 0 ; i < NUM_ROWS ; i++){
+        for(var j = 0 ; j < NUM_COLUMNS ; j++){
+            arr = getRandomLocOut();
+//            cell = getCell(i,j,board[i][j].picName,false,board[i][j]);
+//            killCell(board[i][j]);
+//            board[i][j] = cell;
+//	        setSpeedCell(cell,arr[0],arr[1],time);
+            game.add.tween(board[i][j].letter).to({x: arr[0], y: arr[1]}, time*TIME_INTERVAL, Phaser.Easing.Quadratic.OutIn, true, 0, 0, false);
+            //setSpeedCell(board[i][j],arr[0],arr[1],time);
+        }
+    }
+    if(globalEndAnimation < game.time.now + time){
+        globalEndAnimation = game.time.now + time;
+    }
+}
+
+function setSpeedCell(cell,destPicX,destPicY,time){
+	if(cell.endAnimation < game.time.now){
+		game.add.tween(cell).to({x: destPicX, y: destPicY}, time*TIME_INTERVAL, Phaser.Easing.Quadratic.OutIn, true, 0, 0, false);
+		game.add.tween(cell.letter).to({x: destPicX, y: destPicY}, time*TIME_INTERVAL, Phaser.Easing.Quadratic.OutIn, true, 0, 0, false);
+	}
+}
+
+function fallBoard(time){
+    var arr,cell;
+    for(var i = 0 ; i < NUM_ROWS ; i++){
+        for(var j = 0 ; j < NUM_COLUMNS ; j++){
+//            cell = getCell(i,j,board[i][j].picName,false,board[i][j]);
+//            killCell(board[i][j]);
+//            board[i][j] = cell;
+	        setSpeedCellY(board[i][j],game.world.height+CELL_SIZE,game.world.height+CELL_SIZE*1.5,time);
+        }
+    }
+    if(globalEndAnimation < game.time.now + time){
+        globalEndAnimation = game.time.now + time;
+    }
+
 }

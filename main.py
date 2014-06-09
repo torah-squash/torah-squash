@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import os
 import re
 import time
@@ -53,6 +54,14 @@ On user creation you must initialize user's username, user's first name.
 We initialize password and notification key by using the functions:
 getRandomKey and getRandomPassword that are found above.
 '''
+
+#class Verse(db.Model):
+#    orderIndex = db.IntegerProperty(required=True)
+#    chapter = db.StringProperty(required=True)
+#    verse = db.StringProperty(required=True)
+#    verseContent = db.StringProperty(required=True)
+
+
 class User(db.Model):
     username = db.StringProperty(required=True)
     firstName = db.StringProperty(required=True)
@@ -115,9 +124,12 @@ class LoginHandler(webapp2.RedirectHandler):
                 session['isAdmin'] = user.isAdmin
                 session['message'] = ''
                 if user.isAdmin:
+                    self.response.write("admin<br>")
                     self.redirect("/admin/")
-                # redirect to the game page
-                self.redirect("/play/")
+                else:
+                    # redirect to the game page
+                    self.response.write("play<br>")
+                    self.redirect("/play/")
             else:
                 session['login-username'] = username
                 session['message'] = 'username or password are incorrect'
@@ -136,6 +148,7 @@ class LogoutHandler(webapp2.RedirectHandler):
             session['message'] = ''
             self.response.write('bye bye ' + name + '<br>')
             self.response.write('<a href="/">return to main page</a>')
+            self.redirect('/')
         else:
             self.redirect('/')
 
@@ -314,8 +327,12 @@ class AdminHandler(webapp2.RequestHandler):
 
 class GameHandler(webapp2.RedirectHandler):
     def get(self):
-        #pass
-        template_values = {}
+        session = get_current_session()
+        username = session.get('username', '')
+        isAdmin = session.get('isAdmin', False)
+        if username is '':
+            self.redirect('/')  # login page
+        template_values = {'isAdmin': isAdmin}
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
 
@@ -464,7 +481,7 @@ class LevelStatusHandler(webapp2.RedirectHandler):
         session = get_current_session()
         username = session.get('username', '')
         levels = db.GqlQuery("SELECT * FROM Level WHERE username='" + username + "'" +\
-            " AND path='" + path + "' ORDER BY level;").fetch(100)
+            " AND path='" + path + "' ORDER BY level;").fetch(6000)
         description = ""
         if levels is not None and len(levels) != 0:
             description += str(levels[0].score)
@@ -499,6 +516,32 @@ class GroupScoreHandler(webapp2.RedirectHandler):
         pass
 
 
+class VerseHandler(webapp2.RedirectHandler):
+    def get(self):
+        book = self.request.get('book') or None
+        if book is None or book not in ['1', '2', '3', '4', '5']:
+            self.response.write('select your book:<br>')
+            self.response.write('<form action="" method="get">')
+            self.response.write('<input type="submit" value="1" name="book" />')
+            self.response.write('<input type="submit" value="2" name="book" />')
+            self.response.write('<input type="submit" value="3" name="book" />')
+            self.response.write('<input type="submit" value="4" name="book" />')
+            self.response.write('<input type="submit" value="5" name="book" />')
+            self.response.write('</form>')
+            return
+        # else:
+        with open('db/' + book +'.txt', 'r') as f:
+            self.response.write('<!DOCTYPE html>')
+            self.response.write('<html><head><meta charset="UTF-8" />')
+            self.response.write('<style> body { direction: rtl; }'
+                                + '</style>')
+            self.response.write('</head><body>')
+            for s in f:
+                self.response.write(s.decode('windows-1255').encode('utf8') + '<br>')
+            self.response.write('</body></html>')
+        pass
+
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/admin/', AdminHandler),
@@ -513,5 +556,6 @@ app = webapp2.WSGIApplication([
     ('/leave-level/', LeaveLevelHandler),
     ('/level-status/', LevelStatusHandler),
     ('/group-level/', GroupLevelHandler),
-    ('/group-score/', GroupScoreHandler)
+    ('/group-score/', GroupScoreHandler),
+    ('/admin/verse/', VerseHandler)
 ], debug=True)

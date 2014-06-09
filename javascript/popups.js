@@ -12,7 +12,7 @@ function assert(condition, message) {
 var popups = new function() {
 	this.INTERNET_PROBLEM = ["בעית חיבור לאינטרנט", "קיימת בעית חיבור לאינטרנט אנא נסה שוב בעוד מספר דקות."];
 	this.NOT_ENUGHT_POINTS_FOR_HINT = ["חסרות נקודות", "אתה צריך 100 נקודות כדי לקבל רמז"];
-	this.NOT_ENUGHT_POINTS_FOR_SHOW_VERSE = ["חסרות נקודות", "אתה צריך 1000 נקודות כדי להציג פסוק"];
+	this.NOT_ENUGHT_POINTS_FOR_SHOW_VERSE = ["חסרות נקודות", "אתה צריך 2000 נקודות כדי להציג פסוק"];
 	this.BEFORE_EXIT_LEVEL_QUESTION = ["עזיבת שלב", "האם אתה בטוח שברצונך לעזוב את השלב?"];
 	this.BEFORE_EXIT_APP_QUESTION = ["להתנתק מהמשחק", "האם אתה בטוח שברצונך להתנתק מהמשחק?"];
 
