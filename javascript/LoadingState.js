@@ -94,7 +94,7 @@ var loadingState = {
             logo_squash_title.visible = true;
             torah_icon.visible = true;
         } else if (!allDone) {
-            percentText.content = "תגע במסך כדי להתחיל לשחק";
+            percentText.content = "גע במסך כדי להתחיל לשחק";
             percentText.x = game.world.centerX - percentText.content.length * 20 / 2.0 + 20;
             game.input.onDown.add(nextState, this);
             bar.showButtons([bar.EXIT, bar.SETTINGS], //, bar.PRIZE, bar.PLUS],
