@@ -4,10 +4,6 @@
 /*
  * things we need to do:
  * fix the undo button
- * put a label that tells wich path every torah is
- * fix a lot of bugs
- * let the papers follow the grira
- * put the double arrow to the next perek
  * when we come back to the torah from the game, we go to the next level, and unlock it
  * 
  */
