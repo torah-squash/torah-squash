@@ -193,12 +193,12 @@ function activeFirst(){
             else
             {
                 for (var i = 0 ; i < 3; i ++) // shows the top-3 players
-                    tabdlebuild(i)
+                    tablebuild(i)
                 for (var i = 0 ; i < 4; i ++) // show two players above and one down
                 {
                     var j=me-1;
-                    tabdlebuild(j);
-                    if (j<x.length-2)
+                    tablebuild(j);
+                    if (j < x.length-2)
                         j++;
                 }
             }
