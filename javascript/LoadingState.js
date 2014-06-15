@@ -103,8 +103,8 @@ var loadingState = {
             percentText.content = "גע במסך כדי להתחיל לשחק";
             percentText.x = game.world.centerX - percentText.content.length * 20 / 2.0 + 20;
             game.input.onDown.add(nextState, this);
-            bar.showButtons([bar.EXIT, bar.SETTINGS], //, bar.PRIZE, bar.PLUS],
-                [bar.EXIT_HANDLER, bar.SETTINGS_HANDLER]); //, function() {}, function() {}]);
+            bar.showButtons([bar.EXIT, bar.SETTINGS, bar.PRIZE, bar.PLUS], //, bar.PRIZE, bar.PLUS],
+                [bar.EXIT_HANDLER, bar.SETTINGS_HANDLER, bar.PRIZE_SHOW, bar.PLUS_BUTTON]); //, function() {}, function() {}]);
 
             musicOn = true;
             soundOn = true;

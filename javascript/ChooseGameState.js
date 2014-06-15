@@ -176,8 +176,8 @@ map = {
         initialBigTorah(false);
         initialLifes();
 
-        bar.showButtons([bar.EXIT, bar.SETTINGS], //, bar.PRIZE, bar.PLUS],
-            [bar.EXIT_HANDLER, bar.SETTINGS_HANDLER]); //, function() {}, function() {}]);
+        bar.showButtons([bar.EXIT, bar.SETTINGS, bar.PRIZE, bar.PLUS], //, bar.PRIZE, bar.PLUS],
+            [bar.EXIT_HANDLER, bar.SETTINGS_HANDLER, bar.PRIZE_SHOW, bar.PLUS_BUTTON]); //, function() {}, function() {}]);
 
 //        initialSmallTorahs(false,false);
     },

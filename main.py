@@ -156,8 +156,11 @@ class LogoutHandler(webapp2.RedirectHandler):
             self.redirect('/')
 
 
+# unicode:
+
 USERNAME_MISS_HE = "&#1488;&#1504;&#1488; &#1492;&#1494;&#1503; &#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513;"
 USERNAME_SHORT_HE = "&#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1510;&#1512;&#1497;&#1498; &#1500;&#1492;&#1499;&#1497;&#1500; &#1500;&#1508;&#1495;&#1493;&#1514; 6 &#1514;&#1493;&#1493;&#1497;&#1501;"
+USERNAME_LONG_HE = "&#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1510;&#1512;&#1497;&#1498; &#1500;&#1492;&#1499;&#1497;&#1500; &#1500;&#1499;&#1500; &#1492;&#1497;&#1493;&#1514;&#1512; 10 &#1514;&#1493;&#1493;&#1497;&#1501;"
 USERNAME_ENGLISH = "&#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1495;&#1497;&#1497;&#1489; &#1500;&#1492;&#1499;&#1497;&#1500; &#1488;&#1493;&#1514;&#1497;&#1493;&#1514; &#1489;&#1488;&#1504;&#1490;&#1500;&#1497;&#1514; &#1488;&#1493; &#1502;&#1505;&#1508;&#1512;&#1497;&#1501;"
 FIRST_NAME_MISS_HE = "&#1488;&#1504;&#1488; &#1492;&#1494;&#1503; &#1513;&#1501; &#1508;&#1512;&#1496;&#1497;"
 PASSWORD_MISS_HE = "&#1488;&#1504;&#1488; &#1492;&#1494;&#1503; &#1505;&#1497;&#1505;&#1502;&#1492;"
@@ -166,67 +169,49 @@ USERNAME_EXIST_HE = "&#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1514;&
 SUCCESS_REGISTER_HE = "&#1492;&#1492;&#1512;&#1513;&#1502;&#1492; &#1489;&#1493;&#1510;&#1506;&#1492; &#1489;&#1492;&#1510;&#1500;&#1495;&#1492;"
 
 class RegisterHandler(webapp2.RequestHandler):
+    def get(self):
+        username = self.request.get('username') or ""
+        self.response.write(username + "<br>")
+        if not USERNAME_REGEX.match(username):
+            error = "<li>" + USERNAME_ENGLISH + "</li>"
+        self.response.write(error)
+
     def post(self):
         username = self.request.get('username') or ""
         firstName = self.request.get('firstName') or ""
         password = self.request.get('password') or ""
-        #secondName = self.request.get('secondName') or ""
-        #classString = self.request.get('classString') or ""
-        #school = self.request.get('school') or ""
-        #email = self.request.get('email') or ""
-        #gender = self.request.get('gender') or ""
-        #groupId = self.request.get('groupId') or ""
-
+        flag = True
+        for i in range(len(username)):
+            if not ((username[i] >= '0' and username[i] <= '9') or\
+                    (username[i] >= 'a' and username[i] <= 'z') or\
+                    (username[i] >= 'A' and username[i] <= 'Z')):
+                flag = False
         session = get_current_session()
-
         error = ""
         if firstName is "":
-            error += "<li>" + FIRST_NAME_MISS_HE +"</li>"
+            error += "<li>" + FIRST_NAME_MISS_HE + "</li>"
         if username is "":
             error += "<li>" + USERNAME_MISS_HE + "</li>"
         elif len(username) < 6:
             error += "<li>" + USERNAME_SHORT_HE + "</li>"
-        elif not USERNAME_REGEX.match(username):
+        elif len(username) > 10:
+            error += "<li>" + USERNAME_LONG_HE + "</li>"
+        elif not flag:
             error += "<li>" + USERNAME_ENGLISH + "</li>"
         if password is "":
-            error += "<li>" + PASSWORD_MISS_HE +"</li>"
+            error += "<li>" + PASSWORD_MISS_HE + "</li>"
         elif len(password) < 6:
-            error += "<li>" + PASSWORD_SHORT_HE +"</li>"
-        #if secondName is "":
-        #    error += "<li>second name is missing</li>"
-        #if classString is "":
-        #    error += "<li>class is missing</li>"
-        #if school is "":
-        #    error += "<li>school is missing</li>"
-        #if email is "":
-        #    error += "<li>email is missing</li>"
-        #elif not EMAIL_REGEX.match(email):
-        #    error += "<li>email address incorrect</li>"
-        #if gender is "":
-        #    error += "<li>gender is missing</li>"
-        #elif gender not in ["male", "female"]:
-        #    error += "<li>gender is undefined properly</li>"
-        #if groupId is "":
-        #    error += "<li>group id is missing</li>"
+            error += "<li>" + PASSWORD_SHORT_HE + "</li>"
         if error is "":
             # check if username is unique
             result = db.GqlQuery("SELECT * from User WHERE username='" + username + "'").get()
             if result is not None:
                 error += "<li>" + USERNAME_EXIST_HE + "</li>"
-            #result = db.GqlQuery("SELECT * from User WHERE email='" + email + "'").get()
-            #if result is not None:
-            #    error += "<li>email address already exists</li>"
         if error is not "":
             error = "<ul id='register_message'>" + error + "</ul>"
             session['register_message'] = error
             session['register_username'] = username
             session['register_firstName'] = firstName
-            #session['register_secondName'] = secondName
-            #session['register_classString'] = classString
-            #session['register_school'] = school
-            #session['register_email'] = email
-            #session['register_gender'] = gender
-            #session['register_group_id'] = groupId
             self.redirect("/")
             self.response.write(error)
             return

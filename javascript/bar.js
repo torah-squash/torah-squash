@@ -2,6 +2,8 @@
  * Created by user on 05/06/14.
  */
 
+var plusClicked = false;
+
 var bar = new function() {
     this.EXIT = '#logout';
     this.SETTINGS = '#tools';
@@ -29,6 +31,53 @@ var bar = new function() {
         $('#audio').css('visibility', 'hidden');
     };
 
+    this.PRIZE_SHOW = function() {
+        $( ".bar_option_arrow" ).css('visibility', 'hidden');
+        $( ".options" ).css('visibility', 'hidden');
+        game.state.start('scoreTableState', true, false);
+    };
+
+    this.EXIT_FROM_LEVEL = function() {
+        cancleAll();
+        popups.setMessage(popups.BEFORE_EXIT_APP_QUESTION);
+        popups.setOptions(['לא', 'כן'],
+            [function() { popups.CLOSE_HENDLER(); enableAll(); }, function() {
+                window.location = window.location.pathname.replace('/play/', '/logout/');
+                popups.CLOSE_HENDLER();
+            }]
+        );
+        popups.show();
+    };
+
+    this.RETURN_FROM_LEVEL_TO_MAP = function() {
+        cancleAll();
+        popups.setMessage(popups.BEFORE_EXIT_LEVEL_QUESTION);
+        popups.setOptions(['לא', 'כן'], [
+            function() {
+                popups.CLOSE_HENDLER();
+                enableAll();
+            }, function() {
+                $.get( "../leave-level/", function( data ) {
+                    // do nothing
+                });
+                killEverythingToExitState();
+                game.state.start('chooseGameState', true, true);
+                popups.CLOSE_HENDLER();
+            }]);
+        popups.show();
+    };
+
+    this.PLUS_BUTTON = function() {
+        if (!plusClicked) {
+            $( ".bar_option_arrow" ).css('visibility', 'visible');
+            $( ".options" ).css('visibility', 'visible');
+        } else {
+            $( ".bar_option_arrow" ).css('visibility', 'hidden');
+            $( ".options" ).css('visibility', 'hidden');
+        }
+        plusClicked = !plusClicked;
+    };
+
     this.allButtons = [this.EXIT, this.SETTINGS, this.RETURN,
             this.PRIZE, this.PLUS];
 
@@ -45,7 +94,7 @@ var bar = new function() {
             }
             $(this.allButtons[i]).unbind('click'); // remove all click events
         }
-        this.handlers = handlers.slice(0);
+        this.handlers = handlers; //.slice(0);
         for (var i = 0; i < buttons.length; i++) {
             $(buttons[i]).css('visibility', 'visible');
             $(buttons[i]).fadeIn(500);

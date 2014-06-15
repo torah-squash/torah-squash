@@ -169,7 +169,7 @@
         </ul>
         <ul id="bar_right">
             <li class="bar_li" id="prize"></li>
-            <li class="bar_li" id="plus">
+            <li class="bar_li" id="plus" style="visibility: visible;">
                 <section class="bar_option_arrow"></section>
                 <section class="options">
                     <ul id="sub_options">
@@ -212,6 +212,12 @@
     <script>
         // in case of refresh app while not ready
         $( '#popup_0' ).click(popups.CLOSE_HENDLER);
+        $( document).ready(function() {
+            //$("#swap").play();
+//            var audio = new Audio('../music/swap.mp3');
+//            audio.play();
+        });
+
     </script>
     <script>
 //        $( '.bar_li').css('visibility', 'hidden');

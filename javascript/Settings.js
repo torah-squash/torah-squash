@@ -71,7 +71,7 @@ var settings = {
         $('#audio').css('visibility', 'visible');
 
         bar.showButtons([bar.EXIT, bar.RETURN],
-            [function() {bar.EXIT_HANDLER}, bar.RETURN_TO_MAP]);
+            [bar.EXIT_HANDLER, bar.RETURN_TO_MAP]);
     },
 
     /**

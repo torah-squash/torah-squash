@@ -244,41 +244,14 @@ var board = {
         initialFlags();
         addLettersToArray('pasuk twice');
         putPasukLettersToArray();
-        hintImg = game.add.sprite(HINT_LOC_X,HINT_LOC_Y,'hint');
+        hintImg = game.add.sprite(HINT_LOC_X,HINT_LOC_Y, 'hint');
         enableClick(hintImg,activeHint);
-        showPasukImg = game.add.sprite(SHOW_PASUK_LOC_X,HINT_LOC_Y,'showPasuk');
+        showPasukImg = game.add.sprite(SHOW_PASUK_LOC_X, HINT_LOC_Y, 'showPasuk');
         enableClick(showPasukImg,showPasukClick);
         setUndoButton(true);
         setBeckgoundToTop();
         bar.showButtons([bar.EXIT, bar.RETURN], [
-            function() {
-                cancleAll();
-                popups.setMessage(popups.BEFORE_EXIT_APP_QUESTION);
-                popups.setOptions(['לא', 'כן'],
-                        [function() { popups.CLOSE_HENDLER(); enableAll(); }, function() {
-                            window.location = window.location.pathname.replace('/play/', '/logout/');
-                            popups.CLOSE_HENDLER();
-                        }]
-                );
-                popups.show();
-            }, function() {
-                cancleAll();
-                popups.setMessage(popups.BEFORE_EXIT_LEVEL_QUESTION);
-                popups.setOptions(['לא', 'כן'], [
-                    function() {
-                        popups.CLOSE_HENDLER(); enableAll();
-                    }, function() {
-                        $.get( "../leave-level/", function( data ) {
-                            // do nothing
-                        });
-                        killEverythingToExitState();
-                        game.state.start('chooseGameState', true, true);
-                        popups.CLOSE_HENDLER();
-                    }
-                ]);
-                popups.show();
-            }
-        ]);
+            bar.EXIT_FROM_LEVEL, bar.RETURN_FROM_LEVEL_TO_MAP]);
     },
 
     update: function() {
@@ -321,6 +294,7 @@ var board = {
         }
     }
 };
+var failSwapAudio = new Audio('../music/swapfailed.mp3');
 
 function ____MAIN____(){}
 function cellClick(cell){
@@ -346,6 +320,11 @@ function cellClick(cell){
 				cellState = 'swap';
 			}
 			else{
+                //
+                if (isNextToEachOther(prevCellClick,cell)) {
+                    failSwapAudio.currentTime=0;
+                    failSwapAudio.play();
+                }
                 prevCellClick = cell;
                 stateI = 'null';
                 cellState = 'checkSwap';
@@ -542,12 +521,16 @@ function fillUp(){
 		return true;
 	}
 }
-function swap(cell1,cell2){
+var swapAudio = new Audio('../music/swap.mp3');
+function swap(cell1, cell2){
 	cancleAll();
+//    swapAudio.play();
 	if(isCalledSwapping == false){
 		isCalledSwapping = true;
 		saveTime = game.time.now;
-		if(isVerticalY(cell1,cell2)){
+        swapAudio.currentTime=0;
+        swapAudio.play();
+        if(isVerticalY(cell1,cell2)){
 			setSpeedCellY(cell1,cell2.y1,cell2.letter.y,SWAP_TIME);
 			setSpeedCellY(cell2,cell1.y1,cell1.letter.y,SWAP_TIME);
 		}

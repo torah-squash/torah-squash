@@ -82,56 +82,64 @@ var scoreTableState = {
 
 function activeFirst(){
 
-         var user;
-        $.get('/get-user/', function( data ) {
-            user = data;
-        });
-        $.get('/group-score/', function( data ) {
-           data.replace("'" ,"");
-           var me;
-           var x = data.split('), (');
-           x[0]=x[0].substring(2);
-           var x2=x[x.length-1].split( ')]' );
-           var lastrow=x2[0].split(',')
-           var table=[''];
-           for (var i = 0; i < x.length; i++) {
-                table[i]=x[i].split(',')
-                var cleantable=table[i][0].split("'")
-                table[i][0]=cleantable[1]
-                for (var j = 0; j <  table[i].length; j++) {
-                    if (table[i][0]==user)
-                        me=i;
-                }
+    var user;
+    $.get('/get-user/', function( data ) {
+        user = data;
+    });
+    $.get('/group-score/', function( data ) {
+        data.replace("'" ,"");
+        var me;
+        var x = data.split('), (');
+        x[0]=x[0].substring(2);
+        var x2=x[x.length-1].split( ')]' );
+        var lastrow=x2[0].split(',')
+        var table=[''];
+        for (var i = 0; i < x.length; i++) {
+            table[i]=x[i].split(',')
+            var cleantable=table[i][0].split("'")
+            table[i][0]=cleantable[1]
+            for (var j = 0; j <  table[i].length; j++) {
+                if (table[i][0]==user)
+                    me=i;
+            }
 
-           }
-           for (var i = 0; i < x.length; i++) {
-               for (var j = 0; j < table[i].length; j++) {
-                    console.log(table[i][j]);
-               }
-           }
+        }
+        for (var i = 0; i < x.length; i++) {
+            for (var j = 0; j < table[i].length; j++) {
+                console.log(table[i][j]);
+            }
+        }
 
-             table[x.length-1][2]=lastrow[2];
-             var lastrow=x2[0].split(',')
-             for (var i = 0; i < lastrow.length; i++) {
-                console.log(lastrow[i]);
-             }
+         table[x.length-1][2] = lastrow[2];
+         var lastrow = x2[0].split(',')
+         for (var i = 0; i < lastrow.length; i++) {
+             console.log(lastrow[i]);
+         }
 
         var userIndex = me, next = 0, startX, width;
         var startY = 45;
         var style = { font: "30pt Century", fill: "#ffffff", align: "left"};//, stroke: "White", strokeThickness: 2 };
         var styleP = { font: "32pt Century", fill: "Blue", align: "left", stroke: "White", strokeThickness: 2 };
         var array = ['ניקוד סה"כ', 'שלב', 'שם משתמש'];
+//        var text = game.add.text(startX + width * 0 + 70, startY - 45 - DIS_UP, array[0], style);
+//        moveTexts.push(text);
+//        text = game.add.text(startX + width * 1 + 50, startY - 45 - DIS_UP, array[1], style);
+//        moveTexts.push(text);
+//        text = game.add.text(startX + width * 2 + 30, startY - 45 - DIS_UP, array[2], style);
+//        moveTexts.push(text);
         for(var j = 0; j < 3; j++) {
-            width = 300;
+            width = 256; /*300*/
             startX = (1054 - (3 * width)) / 2;
             var text = game.add.text(startX + width * j + 30, startY - 45 - DIS_UP, array[j], style);
+            text.x = (width) / 2 + startX + width * j;
+            text.anchor.setTo(0.5,0);
             moveTexts.push(text);
         }
         var tablelength=  x.length;
         console.log(table[me]);
         var indextotah = -1;
         if (table[me] != null) {
-            indextotah=("!"+unescape(encodeURIComponent(table[me][0])));
+            indextotah=("!"+table[me][0]);
         }
         console.log('index totah: ' + indextotah);
         function tablebuild(i)
@@ -146,7 +154,7 @@ function activeFirst(){
                 array = [table[i][2],table[i][1],indextotah];
                 for(var j = 0; j < 3; j++) {
                     moveImages.push(game.add.sprite(startX + width * j, startY-DIS_UP, 'table', 3));
-                    var text = game.add.text(startX + width * j + width/2, startY + 12 - DIS_UP, unescape(encodeURIComponent(array[j])), style);
+                    var text = game.add.text(startX + width * j + width/2, startY + 12 - DIS_UP, array[j], style);
                       text.anchor.setTo(0.5,0);
                     moveTexts.push(text);
                 }
@@ -183,16 +191,18 @@ function activeFirst(){
                 tablebuild(i);
             }
             else
-              for (var i = 0 ; i < 3; i ++)
-                tabdlebuild(i)
-             for (var i = 0 ; i < 4; i ++)
-                 {
-                  var j=me-1;
-                  tabdlebuild(j);
-                  if (j<x.length-2)
-                     j++;
-                 }
-         }
+            {
+                for (var i = 0 ; i < 3; i ++) // shows the top-3 players
+                    tabdlebuild(i)
+                for (var i = 0 ; i < 4; i ++) // show two players above and one down
+                {
+                    var j=me-1;
+                    tabdlebuild(j);
+                    if (j<x.length-2)
+                        j++;
+                }
+            }
+        }
     });
     timer = game.time.now + 2000;
     moveImagesAndTexts();
