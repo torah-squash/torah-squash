@@ -21,11 +21,11 @@ var bar = new function() {
     };
 
     this.SETTINGS_HANDLER = function() {
-        game.state.start('settings', false, false);
+        game.state.start('settings', true, false);
     };
 
     this.RETURN_TO_MAP = function() {
-        game.state.start('chooseGameState', false, false);
+        game.state.start('chooseGameState', true, false);
         $('#audio').css('visibility', 'hidden');
     };
 

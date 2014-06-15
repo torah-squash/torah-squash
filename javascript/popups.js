@@ -15,6 +15,7 @@ var popups = new function() {
 	this.NOT_ENUGHT_POINTS_FOR_SHOW_VERSE = ["חסרות נקודות", "אתה צריך 2000 נקודות כדי להציג פסוק"];
 	this.BEFORE_EXIT_LEVEL_QUESTION = ["עזיבת שלב", "האם אתה בטוח שברצונך לעזוב את השלב?"];
 	this.BEFORE_EXIT_APP_QUESTION = ["להתנתק מהמשחק", "האם אתה בטוח שברצונך להתנתק מהמשחק?"];
+    this.NOT_ENUGHT_LIFES = ["נגמר החיים","תצטרך להמתין למחר כדי לחדש את החיים שלך"];
 
 	this.CLOSE_HENDLER = function() {
     	window.location = window.location.pathname + '#';

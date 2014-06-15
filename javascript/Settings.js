@@ -28,7 +28,6 @@ var settings = {
         game.load.image('settings_background', '../images/back.png');
         game.load.spritesheet('sound', 'images/settings/music.png', 80, 80,
                 /*max_frames*/9, /*margin*/0, /*spacing*/0);
-        game.load.audio('will.i.am', ['../music/c.mp3']);
     },
 
     /**

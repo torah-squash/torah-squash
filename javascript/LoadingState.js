@@ -40,6 +40,8 @@ var loadingState = {
             //gameboardState images:
             board.preloadState();
 
+            scoreTableState.preloadState();
+
         } catch (err) {
             popups.setMessage(popups.INTERNET_PROBLEM);
             popups.setOptions(['נסה שוב'],
@@ -66,7 +68,7 @@ var loadingState = {
         logo_squash_title = game.add.sprite(game.world.centerX - 100, 50, 'squash_logo');
         logo_squash_title.visible = false;
         endDelay = game.time.now + DELAY_TIME;
-        endAnimation = game.time.now + DELAY_TIME + ANIMATION_TIME;
+//        endAnimation = game.time.now + DELAY_TIME + ANIMATION_TIME;
         drawCircle(100);
         torah_icon = game.add.sprite(game.world.centerX - 56 / 2, 50, 'torah_icon');
         torah_icon.visible = false;
@@ -89,11 +91,15 @@ var loadingState = {
             game.add.tween(logo_torah_title).to({ x:  game.world.centerX - 340}, ANIMATION_TIME, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
             game.add.tween(logo_squash_title).to({ x:  game.world.centerX + 120}, ANIMATION_TIME, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
             isAnimation = true;
+            endAnimation = game.time.now + DELAY_TIME + ANIMATION_TIME;
         } else if (game.time.now <= endAnimation) {
             logo_torah_title.visible = true;
             logo_squash_title.visible = true;
             torah_icon.visible = true;
         } else if (!allDone) {
+            logo_torah_title.visible = true;
+            logo_squash_title.visible = true;
+            torah_icon.visible = true;
             percentText.content = "גע במסך כדי להתחיל לשחק";
             percentText.x = game.world.centerX - percentText.content.length * 20 / 2.0 + 20;
             game.input.onDown.add(nextState, this);

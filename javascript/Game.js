@@ -14,7 +14,6 @@ game.state.add('loadingState', loadingState);
 game.state.add('shopState', board);
 game.state.add('chooseGameState', map);
 game.state.add('settings', settings);
+game.state.add('scoreTableState', scoreTableState);
 
-//game.state.add('scoreTableState', scoreTableState, true);
-//game.state.add('chooseGameState', map);
 

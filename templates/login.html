@@ -102,6 +102,8 @@
             background-color: #fff;
             opacity: 0.6;
             border-radius: 30px;
+            position: absolute;
+            min-width: 325px;
         }
 
         #register_message li {
@@ -143,7 +145,7 @@
                     <li class="non_click_list_item">
                         <form action="/404/" class="bottom_menu">
                             <input type="button" id="show_login" class="submit" value="התחבר" />
-                            <section dir="rtl">{{ register_message }}</section>
+                            <!--<section dir="rtl">{{ register_message }}</section>-->
                         </form>
                     </li>
                     <li class="non_click_list_item">
@@ -151,10 +153,11 @@
                     </li>
                     <li class="non_click_list_item">
                         <form action="/register/" class="register second_menu top_menu" method="post">
-                            <input type="text" name="username" value="{{ r_userName }}" placeholder="שם משתמש" />
                             <input type="text" name="firstName" value="{{ r_firstName }}" placeholder="שם פרטי" />
+                            <input type="text" name="username" value="{{ r_userName }}" placeholder="שם משתמש" />
                             <input type="password" name="password" placeholder="הכנס סיסמה" />
                             <input type="submit" name="submit" class="submit" value="הירשם" />
+                            <section dir="rtl">{{ register_message }}</section>
                         </form>
                     </li>
                 </ul>

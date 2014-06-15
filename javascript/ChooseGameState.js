@@ -7,6 +7,12 @@
  * when we come back to the torah from the game, we go to the next level, and unlock it
  * 
  */
+var HEART_WIDTH = 81;
+var HEART_HEIGHT = 72;
+var choosenPage = 0;
+var heb1 = ['','א','ב','ג','ד','ה','ו','ז','ח','ט'];
+var heb10 = ['','י','כ','ל','מ','נ','ס','ע','פ','צ'];
+var heb100 = ['','ק','ר','ש','ת'];
 var heartText = null;
 var heart = null;
 var numLifes = 10;
@@ -152,6 +158,7 @@ map = {
         game.load.image('star-1','images/lock.png');
         game.load.image('lock','images/lock.png');
         game.load.image('unlock','images/unlock.png');
+        game.load.image('heart','images/heart.png');
     },
 
     create: function() {
@@ -167,6 +174,7 @@ map = {
         background = game.add.tileSprite(0, 0, game.world.width, game.world.height, 'background');
         hideLeft = game.add.tileSprite(0, 0, game.world.width/2 - BIG_TORAH_WIDTH/4, game.world.height, 'background');
         initialBigTorah(false);
+        initialLifes();
 
         bar.showButtons([bar.EXIT, bar.SETTINGS], //, bar.PRIZE, bar.PLUS],
             [bar.EXIT_HANDLER, bar.SETTINGS_HANDLER]); //, function() {}, function() {}]);
@@ -232,6 +240,9 @@ function bigTorahClick(){
 	else{
         innerState = 'closeTorah';
 		state = 'torahOpen';
+        if(isDvir) {
+            goTopage(page[choosenPage]);
+        }
 	}
 }
 //function leftTorahClick(){
@@ -289,15 +300,15 @@ function doubleLeftArrowClick(){
 function doubleRightArrowClick(){
 	state = 'doubleRightArrowClick';
     if(innerState == 'closeTorah' && closeTorah() == false);
-    else if(innerState == 'closeTorah'){innerState = 'bringDownFront'; chapterIndex--;console.log(11);}
+    else if(innerState == 'closeTorah'){innerState = 'bringDownFront'; chapterIndex--;}
     else if(innerState == 'bringDownFront' && bringDownOnlyFront() == false);
-    else if(innerState == 'bringDownFront'){innerState = 'switchPerek';console.log(12);}
+    else if(innerState == 'bringDownFront'){innerState = 'switchPerek';}
     else if(innerState == 'switchPerek' && switchTorahToRightPerek() == false);
-    else if(innerState == 'switchPerek'){innerState = 'bringUpCover';console.log(13);}
+    else if(innerState == 'switchPerek'){innerState = 'bringUpCover';}
     else if(innerState == 'bringUpCover' && bringUpOnlyFront() == false);
-    else if(innerState == 'bringUpCover'){innerState = 'openTorah';console.log(14);}
+    else if(innerState == 'bringUpCover'){innerState = 'openTorah';}
     else if(innerState == 'openTorah' && openTorah() == false);
-    else{console.log(15);
+    else{
         innerState = 'closeTorah';
 	    state = 'torahOpen';
     }
@@ -388,7 +399,7 @@ function bringUpOnlyFront(){
         isDidBringUp = true;
         fix2Scrolers(false);
 	    initialFront(true);
-        createPages(chapterIndex);
+        createPages();
 	    setPapers(true);
         followBackgroundAfterScrolers();
         setSpeedY(torahFront,-BIG_TORAH_HEIGHT,UP_TIME);
@@ -486,7 +497,7 @@ function openTorah(){
 	}
 }
 function putChapterLabel(){
-    chapterLabel = game.add.text(GAME_WIDTH/2,100,"פרק "+chapterIndex,CHAPTER_STYLE);
+    chapterLabel = game.add.text(GAME_WIDTH/2,60,getHebrewChapterString(chapterIndex),CHAPTER_STYLE);
     chapterLabel.anchor.setTo(0.5,0);
 }
 function putSumStars(){
@@ -725,6 +736,8 @@ function bringAllToTop(){
 	bringToTop(bigTorah);
     bringToTop(nextTorah);
 	bringToTop(torahFront);
+    bringToTop(heart);
+    initialLifes();
     destroy(contactsLabel);
     contactsLabel = game.add.text(0,game.world.height,CONTACTS_TEXT,CONTACTS_STYLE);
     contactsLabel.anchor.setTo(0,1);
@@ -766,12 +779,10 @@ function createPages(){
         setMatchChapter(levelSplit.length);
         didCreatePages = true;
     }
-    console.log(chapterIndex);
     numPages = allPsukim[chapterIndex-1].length + 2;
     sumStars = 0;
     var i = 1;
     var j = getNumPsukimUntilChapter(chapterIndex);
-    console.log(levelSplit.length+","+j+","+numPages+","+numSpots);
     if(levelSplit.length - j < 2){
         shiftRightPage = 2;
     }
@@ -797,16 +808,17 @@ function createPages(){
             page[i].isLocked = false;
         }
         page[i].level = i;
-        page[i].number = game.add.text(page[i].body.x + PAGE_WIDTH/2,page[i].body.y + PAGE_HEIGHT/2,""+page[i].level, STYLE_LEVEL);
+        page[i].number = game.add.text(page[i].body.x + PAGE_WIDTH/2,page[i].body.y + PAGE_HEIGHT/2,"'"+getHebrewIndexString(page[i].level), STYLE_LEVEL);
         page[i].number.anchor.setTo(0.5,0.5);
         page[i].endAnimation = 0;
         page[i].points = parseInt(levelSplit[j]);//(i < levels.length)?levels[i]:"";//parseInt(Math.random()*10000000);
-//        console.log("lvl." + (i - 1).toString() + " score: " + levelSplit[i]);
         page[i].pointsText = game.add.text(page[i].body.x + PAGE_WIDTH/2,page[i].body.y + 20,""+page[i].points, STYLE_POINTS);
         page[i].pointsText.anchor.setTo(0.5,0);
         page[i].endAnimation = 0;
+//        page[i].events.onInputDown.add(goTopage1, this);
     }
     var once = false;
+    choosenPage = i;
     for(; i < numPages ; i++ , j++){
         var index = (j==levelSplit.length)?0:-1;//parseInt(Math.random()*4);
         once = true;
@@ -821,7 +833,7 @@ function createPages(){
         page[i].stars = game.add.sprite(-200,game.world.height/2-PAGE_HEIGHT/2-3,'star'+index,0);
         page[i].stars.endAnimation = 0;
         page[i].level = i;
-        page[i].number = game.add.text(page[i].body.x + PAGE_WIDTH/2,page[i].body.y + PAGE_HEIGHT/2,""+page[i].level, STYLE_LEVEL);
+        page[i].number = game.add.text(page[i].body.x + PAGE_WIDTH/2,page[i].body.y + PAGE_HEIGHT/2,"'"+getHebrewIndexString(page[i].level), STYLE_LEVEL);
         page[i].number.anchor.setTo(0.5,0.5);
         page[i].points = "";//(i < levels.length)?levels[i]:"";//parseInt(Math.random()*10000000);
         page[i].pointsText = game.add.text(page[i].body.x + PAGE_WIDTH/2,page[i].body.y + 20,""+page[i].points, STYLE_POINTS);
@@ -837,8 +849,8 @@ function enableClick(pic,func){
 	if(pic != null){
 		pic.inputEnabled = true;
 		pic.events.onInputDown.add(func,this);
-        pic.events.onDown.add(func,this);
-        pic.events.isDown.add(func,this);
+//        pic.events.onDown.add(func,this);
+//        pic.events.isDown.add(func,this);
 	}
 }
 function isPageInRange(i){
@@ -899,14 +911,25 @@ function followBackgroundAfterScrolers(){
 }
 var levelCounter;
 function goTopage (img) {
-	levelClicked = img.level;
-    levelCounter = levelClicked + getNumPsukimUntilChapter(chapterIndex);
-    // i dont know why i need to add 2 to the counter, somehow its the server foult
-    $.get( "../start-level/?level=" + levelCounter+1, function( data ) {
-    });
-    console.log("sended to the server the level: "+levelCounter);
-    deleteAllImg();
-	game.state.start('shopState', true, true);
+    if(numLifes > 0){
+        console.log("clicked");
+        levelClicked = img.level;
+        levelCounter = levelClicked + getNumPsukimUntilChapter(chapterIndex);
+        console.log('counter: '+levelCounter.toString());
+        // i dont know why i need to add 2 to the counter, somehow its the server foult
+        $.get( "../start-level/?level=" + levelCounter, function( data ) {
+        });
+        console.log("sended to the server the level: "+levelCounter);
+        deleteAllImg();
+        game.state.start('shopState', true, true);
+    }
+    else{
+        popups.setMessage(popups.NOT_ENUGHT_LIFES);
+        popups.setOptions(['אוקי'], [function() {
+            popups.CLOSE_HENDLER();
+        }]);
+        popups.show();
+    }
 }
 function deleteAllImg(){
     kill(hideLeft);
@@ -1019,12 +1042,68 @@ function putArrows(isToPut){
 	}
 }
 function initialLifes(){
-    heart = game.add.tween(100,10,'heart');
-    heartText = game.add.text(100 + heart.body.width/2,10 + heart.body.height/2,numLifes,CONTACTS_STYLE);
+    heart = game.add.sprite(10,10,'heart');
+    heartText = game.add.text(10 + HEART_WIDTH/2,10 + HEART_HEIGHT/2,(numLifes+0).toString(),STYLE_POINTS);
     heartText.anchor.setTo(0.5,0.5)
-
 }
 
+function getHebrewChapterString(index){
+    var preStr = "";
+    if(index < 50){
+        preStr = "בראשית";
+    }
+    else if(index < 100){
+        preStr = "שמות";
+    }
+    else if(index < 150){
+        preStr = "ויקרא";
+    }
+    else if(index < 200){
+        preStr = "במדבר";
+    }
+    else{
+        preStr = "דברים";
+    }
+    preStr += "\n" + "'";
+    preStr += "פרק ";
+    var str = "";
+    if(index%100 == 15){
+        str = 'טו';
+        index = parseInt(index/100);
+    }
+    else if(index%100 == 16){
+        str = 'טז';
+        index = parseInt(index/100);
+    }
+    else{
+        str = heb1[index%10];
+        index = parseInt(index/10);
+        str = heb10[index%10] + str;
+        index = parseInt(index/10);
+    }
+    str = heb100[index] + str;
+    str = preStr + str;
+    return str;
+}
+function getHebrewIndexString(index){
+    var str = "";
+    if(index%100 == 15){
+        str = 'טו';
+        index = parseInt(index/100);
+    }
+    else if(index%100 == 16){
+        str = 'טז';
+        index = parseInt(index/100);
+    }
+    else{
+        str = heb1[index%10];
+        index = parseInt(index/10);
+        str = heb10[index%10] + str;
+        index = parseInt(index/10);
+    }
+    str = heb100[index] + str;
+    return str;
+}
 //function switchRight () {
 //	if(isAnimationDone(bigTorah) == false){
 //        cancleClick(bigTorah);

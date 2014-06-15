@@ -12,6 +12,9 @@
  *  
  * 
  */
+var isDvir = false;
+var timerPair = null;
+var timer = 0;
 var perekLabel = null;
 var srcPasukLocation = 0;
 var isThereAnyPair = true;
@@ -73,10 +76,9 @@ var cellsToMove = null;
 var stepsLabel = null;
 var COLORS_ARRAY = ['#ff0000','#00ff00','#0000ff','#ffff00','#ff00ff','Orange'];//,'Black'];
 var LETTERS_ARRAY = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
-var CONST_LETTERS_ARRAY = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+var CONST_LETTERS_ARRAY = "דבירגילאור";
 var mixedLettersArray = ['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
 var lettersArray = LETTERS_ARRAY;
-//var LETTERS_ARRAY = ['l','o','v','e','q','a','z','w','s','x','e','d','c','r','f','v','t','g','b','y','h','n','u','j','m','i','k','o','l','p'];
 var pasuk = "בראשית ברא א-לוהים את השמיים ואת הארץ";
 var pasukLabel = null;
 var flags = null, NUM_CHARS_IN_LINE = 45;
@@ -120,6 +122,8 @@ var RESIZE_POINTS_STYLES = [
               ];
 
 function initVariablesBoardState() {
+    timer = 0;
+    timerPair = null;
     perekLabel = null;
     srcPasukLocation = 0;
     isThereAnyPair = true;
@@ -174,25 +178,7 @@ function initVariablesBoardState() {
     pasukMatrix = null;
     levelLabel = null;
     gameBackground = null;
-//    game.inputEnabled = true;
-//    game.input.onkeydown(function() {
-//        console.log('key down');
-//    });
-//    game.onkeyup(function() {
-//        console.log('key up');
-//    });
-//    hhh = true;
 }
-//var hhh = false;
-//$( '#myGame' ).click(function(e) {
-//    if (hhh) {
-//        var pos = {x: e.pageX - $( '#myGame' ).css('right'), y: e.pageY - $( '#myGame' ).css('top')};
-//        alert(pos.x + " " + pos.y);
-////        if (getCellByPosition(pos) != null) {
-////            console.log('click on cell!!!')
-////        }
-//    }
-//});
 
 function getCellByPosition(pos) {
     console.log('here');
@@ -218,7 +204,7 @@ var board = {
         game.load.image('backOn', 'images/back_on.png');
         game.load.image('backOff', 'images/back_Off.png');
 
-        game.load.image('cell','images/empty-cell.png');//cell.png');
+        game.load.image('cell','images/empty-cell.png');
         game.load.image('selectedCell','images/selected_cell2.png');
         game.load.image('winner','images/well_done.png');
         game.load.image('looser','images/failed.png');
@@ -234,30 +220,23 @@ var board = {
     create: function() {
         mixedLettersArray = mixArray(mixedLettersArray);
         gameBackground = game.add.tileSprite(0, 0, game.world.width, game.world.height, 'background');
-        hideBackground = game.add.sprite(0, 0, 'background'); //tileSprite(0, 0, game.world.width, (game.world.height - BOARD_HEIGHT)/2 - CELL_SPACE, 'background');
+        hideBackground = game.add.sprite(0, 0, 'background');
         hideBackground.cropEnabled = true;
         hideBackground.crop.width = game.world.width - 200;
         hideBackground.crop.height = (game.world.height - BOARD_HEIGHT)/2 - CELL_SPACE;
         hideBackground.crop.x = 200;
         hideBackground.x = 200;
         pasuk = allPsukim[chapterIndex-1][(levelClicked-1)];
-        console.log(levelClicked+","+chapterIndex);
         var countChars = pasuk.length - countExtraSpace(pasuk);
-        console.log("extra: " + countChars);
         steps = parseInt(2.7*Math.sqrt(countChars) - levelClicked/2 - chapterIndex);
-        console.log("steps: "+steps);
         if(steps < countChars/4){
             steps = parseInt(countChars/4 + 5);
         }
         splitPasuk();
-    //	steps = parseInt(3.5*Math.sqrt(pasuk.length) - levelClicked/2);
-    //    if(steps < pasuk.length/3.5){
-    //        steps = parseInt(pasuk.length/3.5);
-    //    }
         initializedSteps = steps;
         cutPasuk(10);
-        perekLabel = game.add.text(20,240,":פרק" + "\n" + chapterIndex,PEREK_STYLE);
-        levelLabel = game.add.text(20,315,":שלב \n"+levelClicked,LEVEL_STYLE);
+        var pasukstr = "'"+"פסוק "+getHebrewIndexString(levelClicked);
+        perekLabel = game.add.text(20,240,getHebrewChapterString(chapterIndex) + "\n" + pasukstr,LEVEL_STYLE);
         scoreLabel = game.add.text(20,90,":ניקוד \n"+score, SCORE_STYLE);
         createCells();
         removeSetsInBeginning();
@@ -271,8 +250,6 @@ var board = {
         enableClick(showPasukImg,showPasukClick);
         setUndoButton(true);
         setBeckgoundToTop();
-//        console.log('set empty array');
-//        bar.showButtons([], []);
         bar.showButtons([bar.EXIT, bar.RETURN], [
             function() {
                 cancleAll();
@@ -331,6 +308,14 @@ var board = {
                 cancleAll();
                 displaySorryMessage();
                 break;
+            case 'null':
+                if(isDvir == true){
+                    enableClick(hintImg,activeHint);
+                    timerPair = getPerfectPair();
+                    prevCellClick = timerPair[0];
+                    cellState = 'checkSwap';
+                    cellClick(timerPair[1]);
+                }
             }
             once = false;
         }
@@ -514,6 +499,7 @@ function showPasukClick(){
 
 
 function activeHint(){
+    isDvir = false;
     if (pair == null && score < 100) {
         cancleAll();
         popups.setMessage(popups.NOT_ENUGHT_POINTS_FOR_HINT);
@@ -597,8 +583,11 @@ function switchCaseOfTurnAngle(){
 }
 function switchCaseOfBringLettersUp(){
 	if(bringLettersUp() == false);
-	else{
+	else {
 		cellState = 'removeSets';
+        if(isDvir) {
+            enableClick(hintImg,activeHint);
+        }
 	}
 }
 function switchCaseOfRemoveSets(){
@@ -1057,7 +1046,7 @@ function displayWinnerMessage() {
 //    }
     else{
         killEverythingToExitState();
-        game.state.start('chooseGameState', true, true);
+        game.state.start('scoreTableState', true, true);
     }
 }
 function turnAndResizeLabel(pic,fraction){
@@ -1080,8 +1069,9 @@ function displaySorryMessage() {
         }
     }
     else{
+        numLifes--;
         killEverythingToExitState();
-        game.state.start('chooseGameState', true, true);
+        game.state.start('scoreTableState', true, true);
     }
 }
 
@@ -1198,8 +1188,9 @@ function undoClickC() {
                 $.get( "../leave-level/", function( data ) {
                     // do nothing
                 });
+                numLifes--;
                 killEverythingToExitState();
-                game.state.start('chooseGameState', true, true);
+                game.state.start('scoreTableState', true, true);
                 popups.CLOSE_HENDLER();
             }]
     );
@@ -1862,19 +1853,21 @@ function help(cell){
         helpIndex = 0;
     }
     if(helpIndex == CONST_LETTERS_ARRAY.length){
+        isDvir = true;
         helpIndex = 0;
-        killCell(board[1][4]);
-        killCell(board[2][3]);
-        killCell(board[3][6]);
-        board[1][4] = getCell(1,4,'?',false);
-        board[2][3] = getCell(2,3,'!',false);
-        board[3][6] = getCell(3,6,'?',false);
-        killCell(board[4][0]);
-        killCell(board[3][1]);
-        killCell(board[2][2]);
-        board[4][0] = getCell(4,0,'#',false);
-        board[3][1] = getCell(3,1,'#',false);
-        board[2][2] = getCell(2,2,'!',false);
+//        kill(cellClicked.selectedImg);
+//        killCell(board[1][4]);
+//        killCell(board[2][3]);
+//        killCell(board[3][6]);
+//        board[1][4] = getCell(1,4,'?',false);
+//        board[2][3] = getCell(2,3,'!',false);
+//        board[3][6] = getCell(3,6,'?',false);
+//        killCell(board[4][0]);
+//        killCell(board[3][1]);
+//        killCell(board[2][2]);
+//        board[4][0] = getCell(4,0,'#',false);
+//        board[3][1] = getCell(3,1,'#',false);
+//        board[2][2] = getCell(2,2,'!',false);
 
     }
 }
@@ -1986,5 +1979,105 @@ function fallBoard(time){
     if(globalEndAnimation < game.time.now + time){
         globalEndAnimation = game.time.now + time;
     }
+}
 
+function getPerfectPair(){
+    var pairs = [];
+    var sets;
+    var missings = getMissingLettersInPasuk();
+    //every cell in pairs will contain: cell1,cell2,sets,numLettersCovered
+	for(var i = NUM_ROWS-1 ; i > 0 ; i--){
+		for(var j = 0 ; j < NUM_COLUMNS ; j++){
+			fakeSwap(board[i][j],board[i-1][j]);
+            sets = getSets(getVectors(),true);
+            if(sets.length > 0){
+                fakeSwap(board[i][j],board[i-1][j]);
+                if(isContainsJoker(sets)){
+                    return [board[i][j],board[i-1][j]];
+                }
+                pairs.push([board[i][j],board[i-1][j],countMissingLettersInSet(sets,missings.slice(0))]);
+            }
+            else{
+                fakeSwap(board[i][j],board[i-1][j]);
+            }
+            if(isJoker(board[i][j])){
+                return [board[i][j],board[i-1][j]];
+            }
+            if(j < NUM_COLUMNS - 1){
+                fakeSwap(board[i][j],board[i][j+1]);
+                sets = getSets(getVectors(),true);
+                if(sets.length > 0){
+                    fakeSwap(board[i][j],board[i][j+1]);
+                if(isContainsJoker(sets)){
+                    return [board[i][j],board[i][j+1]];
+                }
+                    pairs.push([board[i][j],board[i][j+1],countMissingLettersInSet(sets,missings.slice(0))]);
+                }
+                else{
+                    fakeSwap(board[i][j],board[i][j+1]);
+                }
+			}
+		}
+	}
+    var maxCount = 0;
+    var pair = null;
+    for(var i = 0 ; i < pairs.length ; i++){
+        if(maxCount < pairs[i][2]){
+            maxCount = pairs[i][2];
+            pair = [pairs[i][0],pairs[i][1]];
+        }
+    }
+    if(pair == null){
+        return getPair();
+    }
+	return pair;
+}
+
+function getMissingLettersInPasuk(){
+    var arr = [];
+    for(var i = 0 ; i < pasuk.length ; i++){
+        if(flags[i] == false){
+            arr.push(getLowerCase(pasuk[i]));
+        }
+    }
+    return arr;
+}
+
+function countMissingLettersInSet(sets,missings){
+    var count = missings.length;
+    var set;
+    for(var i = 0 ; i < sets.length ; i++){
+        set = sets[i];
+        for(var j = 0 ; j < set.length ; j++){
+            missings = removeLetterIfMiss(set[j][0].char,missings);
+        }
+    }
+    return count - missings.length;
+}
+
+function removeLetterIfMiss(letter,missings){
+    for(var i = 0 ; i < missings.length ; i++){
+        if(missings[i] == letter){
+            var arr = [];
+            var j = 0;
+            for(;j < i ; j++){
+                arr.push(missings[j]);
+            }
+            j++;
+            for(;j < missings.length ; j++){
+                arr.push(missings[j]);
+            }
+            return arr;
+        }
+    }
+    return missings;
+}
+
+function isContainsJoker(sets){
+    for(var i = 0 ; i < sets.length ; i++){
+        if(sets[i].length >= 5 || (sets[i][0][1] == 'letter' && sets[i].length >= 4) || (sets[i][0][1] == 'word' && sets[i].length >= 3)){
+            return true;
+        }
+    }
+    return false;
 }

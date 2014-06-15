@@ -22,7 +22,10 @@ import datetime
 import cgi
 import jinja2
 import webapp2
+import urllib
+import codecs
 
+from operator import itemgetter
 from gaesessions import get_current_session
 from google.appengine.ext import db
 
@@ -73,7 +76,7 @@ class User(db.Model):
     coins = db.IntegerProperty(default=0)
     notificationKey = db.StringProperty(default=getRandomKey())
     password = db.StringProperty(default=getRandomPassword())
-    groupId = db.StringProperty()
+    groupId = db.StringProperty(default='12345')
     isAdmin = db.BooleanProperty(default=False)
     registrationDate = db.TimeProperty(auto_now=True)
     def __str__(self):
@@ -102,7 +105,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
           extensions=['jinja2.ext.autoescape'],
           autoescape=True)
 EMAIL_REGEX = re.compile("[^@]+@[^@]+\.[^@]+")
-
+USERNAME_REGEX = re.compile("[0-9A-Za-z]+")
 
 class LoginHandler(webapp2.RedirectHandler):
     def post(self):
@@ -154,18 +157,12 @@ class LogoutHandler(webapp2.RedirectHandler):
 
 
 USERNAME_MISS_HE = "&#1488;&#1504;&#1488; &#1492;&#1494;&#1503; &#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513;"
-USERNAME_MISS_EN = "username is missing"
 USERNAME_SHORT_HE = "&#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1510;&#1512;&#1497;&#1498; &#1500;&#1492;&#1499;&#1497;&#1500; &#1500;&#1508;&#1495;&#1493;&#1514; 6 &#1514;&#1493;&#1493;&#1497;&#1501;"
-USERNAME_SHORT_EN = "username must contains at least 6 characters"
-
+USERNAME_ENGLISH = "&#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1495;&#1497;&#1497;&#1489; &#1500;&#1492;&#1499;&#1497;&#1500; &#1488;&#1493;&#1514;&#1497;&#1493;&#1514; &#1489;&#1488;&#1504;&#1490;&#1500;&#1497;&#1514; &#1488;&#1493; &#1502;&#1505;&#1508;&#1512;&#1497;&#1501;"
 FIRST_NAME_MISS_HE = "&#1488;&#1504;&#1488; &#1492;&#1494;&#1503; &#1513;&#1501; &#1508;&#1512;&#1496;&#1497;"
-FIRST_NAME_MISS_EN = "first name is missing"
-
 PASSWORD_MISS_HE = "&#1488;&#1504;&#1488; &#1492;&#1494;&#1503; &#1505;&#1497;&#1505;&#1502;&#1492;"
 PASSWORD_SHORT_HE = "&#1505;&#1497;&#1505;&#1502;&#1492; &#1510;&#1512;&#1497;&#1499;&#1492; &#1500;&#1492;&#1499;&#1497;&#1500; &#1500;&#1508;&#1495;&#1493;&#1514; 6 &#1514;&#1493;&#1493;&#1497;&#1501;"
-
 USERNAME_EXIST_HE = "&#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1514;&#1508;&#1493;&#1505; &#1488;&#1504;&#1488; &#1489;&#1495;&#1512; &#1513;&#1501; &#1502;&#1513;&#1514;&#1502;&#1513; &#1488;&#1495;&#1512;"
-
 SUCCESS_REGISTER_HE = "&#1492;&#1492;&#1512;&#1513;&#1502;&#1492; &#1489;&#1493;&#1510;&#1506;&#1492; &#1489;&#1492;&#1510;&#1500;&#1495;&#1492;"
 
 class RegisterHandler(webapp2.RequestHandler):
@@ -183,12 +180,14 @@ class RegisterHandler(webapp2.RequestHandler):
         session = get_current_session()
 
         error = ""
+        if firstName is "":
+            error += "<li>" + FIRST_NAME_MISS_HE +"</li>"
         if username is "":
             error += "<li>" + USERNAME_MISS_HE + "</li>"
         elif len(username) < 6:
             error += "<li>" + USERNAME_SHORT_HE + "</li>"
-        if firstName is "":
-            error += "<li>" + FIRST_NAME_MISS_HE +"</li>"
+        elif not USERNAME_REGEX.match(username):
+            error += "<li>" + USERNAME_ENGLISH + "</li>"
         if password is "":
             error += "<li>" + PASSWORD_MISS_HE +"</li>"
         elif len(password) < 6:
@@ -419,7 +418,11 @@ class StartLevelHandler(webapp2.RedirectHandler):
     def get(self):
         session = get_current_session()
         # get level from URL using request.get('level')
-        level = int(self.request.get('level'))
+        level = self.request.get('level') or ""
+        if level is "":
+            self.response.write(session.get('level', ''))
+            return
+        level = int(level)
         try:
             if level < 0:
                 raise Exception('error level must be positive')
@@ -440,7 +443,7 @@ class SubmitLevelHandler(webapp2.RedirectHandler):
         # get score from URL using request.get('score')
         score = int(self.request.get('score'))
         username = session.get('username', '')
-        level = session.get('level', '')
+        level = int(session.get('level', ''))
         if level is '' or username is '' or not isinstance(score, int):
             self.response.write('error missing fields while submit level')
             return
@@ -509,11 +512,75 @@ class GroupLevelHandler(webapp2.RedirectHandler):
         #    self.response.write('error - username log off')
         pass
 
+class getUser(webapp2.RedirectHandler):
+   def get(self):
+        session = get_current_session()
+        username = session.get('username', '')
+        #if username is not '':  # if username found
+        #    user = db.GqlQuery("SELECT * FROM User WHERE username='"+username+ "';").get()
+        self.response.write(username)
+        pass
+
 
 class GroupScoreHandler(webapp2.RedirectHandler):
     def get(self):
+        session = get_current_session()
+        username = session.get('username', '')
+        MAXGROUPSIZE = 100
+        tableScore=[]
+        newtableScore=[]
 
+        if username is not '':  # if username found
+            user = db.GqlQuery("SELECT * FROM User WHERE username='"+username+ "';").get()
+            group = db.GqlQuery("SELECT * FROM User where groupId='"+str(user.groupId)+"';").fetch(MAXGROUPSIZE)
+            #self.response.write('I\'m ok' + "<br>")
+            #self.response.write(user.username + "<br>" + "<br>")
+            groupscore=0;
+            for groupUser in group:
+                #self.response.write(group[i].username + "<br>")
+                #level = db.GqlQuery("SELECT * FROM Level WHERE username='"+groupUser.username+"';").get()
+                scores = db.GqlQuery("SELECT * FROM Level WHERE username='"+groupUser.username+"';").fetch(50)
+                score = 0
+                maxLevel = 0
+                for i in range(0, len(scores)):
+                    score += scores[i].score
+                    if scores[i].level > maxLevel:
+                        maxLevel = scores[i].level
+                username = groupUser.username.encode('ascii', 'xmlcharrefreplace') #unicode(groupUser.username, encoding='utf-8') # .encode('utf-8')
+                onerow = (username, int(maxLevel), int(score))
+                tableScore.append({"username": username, "level": str(maxLevel), "score": str(score)})
+                newtableScore.append(onerow)
+
+                if scores is None:
+                    #self.response.write(groupUser.username + " " + str(maxLevel) + " " + str(score) + "<br>" + "<br>")
+                    self.response.write('username missing')
+                groupscore+=score;
+            sortedtable= sorted(newtableScore, key=itemgetter(1,2), reverse=True)
+            self.response.write(sortedtable)
+            self.response.write("<br>"+"<br>")
+            self.response.write(groupscore)
         pass
+
+class TableScore(webapp2.RedirectHandler):
+    def get(self):
+        session = get_current_session()
+        name = session.get('name', '')
+        template_values = {'name': name}
+        template = JINJA_ENVIRONMENT.get_template('mytablescore.html')
+        self.response.write(template.render(template_values))
+        pass
+
+
+class InitGroupId(webapp2.RedirectHandler):
+    def get(self):
+        users = db.GqlQuery("SELECT * FROM User").fetch(100)
+        for user in users:
+            user.groupId = '12345'
+            user.put()
+        levels = db.GqlQuery("SELECT * FROM Level").fetch(1000)
+        for level in levels:
+            level.delete()
+
 
 
 class VerseHandler(webapp2.RedirectHandler):
@@ -557,5 +624,8 @@ app = webapp2.WSGIApplication([
     ('/level-status/', LevelStatusHandler),
     ('/group-level/', GroupLevelHandler),
     ('/group-score/', GroupScoreHandler),
+    ('/get-user/', getUser),
+    ('/score/', TableScore),
+    #('/init-groups/', InitGroupId),
     ('/admin/verse/', VerseHandler)
 ], debug=True)
