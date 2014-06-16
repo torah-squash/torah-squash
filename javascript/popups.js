@@ -39,10 +39,10 @@ var popups = new function() {
 		for (i = 0; i < Math.max(options.length, 2); i++) {
 			if (i < options.length) {
 				$('#popup_' + i.toString()).html(options[i]);
-				$('#popup_' + i.toString()).click(this.handlers[i]);
+				$('#popup_' + i.toString()).unbind('click').click(this.handlers[i]);
 			} else {
 				$('#popup_' + i.toString()).html('');
-				$('#popup_' + i.toString()).click(function() {}); // do nothing
+				$('#popup_' + i.toString()).unbind('click').click(function() {}); // do nothing
 			}
 		}
     };

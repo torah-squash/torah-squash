@@ -12,6 +12,7 @@
     margin: 0px auto;
     border: 0px solid #41719C;
     position: relative;
+    width: 1054px;
 }
 
 #myGame canvas
@@ -25,12 +26,6 @@
     width: 1054px;
     height: 150px;
     margin: 0 auto;
-}
-
-#myGame
-{
-    margin: 0px auto;
-    /*height: 100%;*/
 }
 
 /* #### Mobile Phones Portrait #### */
@@ -103,7 +98,7 @@
     /* some CSS here */
     #myGame
     {
-        width: 1024px;
+        width: 1056px;
     }
 }
 
@@ -172,7 +167,7 @@
 /*********************************************************************/
 
 #bar_wrap {
-    width: 1024px;
+    width: 1054px;
     position: relative;
     margin: 0 auto;
 }
@@ -180,7 +175,7 @@
 #bar_left {
     padding: 0px;
     background-color: #3A3A3A;
-    width: 1024px;
+    width: 1054px;
     position: relative;
     margin: 0 auto;
     height: 38px;
@@ -231,6 +226,7 @@
 }
 
 #plus {
+    visibility: hidden;
     background-position: -160px 0px;
     top: 3px;
     position: absolute;

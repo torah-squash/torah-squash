@@ -94,11 +94,11 @@ var bar = new function() {
             }
             $(this.allButtons[i]).unbind('click'); // remove all click events
         }
-        this.handlers = handlers; //.slice(0);
+        //this.handlers = handlers; //.slice(0);
         for (var i = 0; i < buttons.length; i++) {
             $(buttons[i]).css('visibility', 'visible');
             $(buttons[i]).fadeIn(500);
-            $(buttons[i]).unbind('click').click(this.handlers[i]);
+            $(buttons[i]).unbind('click').click(handlers[i]);
         }
     };
 

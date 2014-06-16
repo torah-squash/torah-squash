@@ -23,7 +23,7 @@ var pasukSplited = null;
 var doneOnThisStep = 0;
 var missingLetter;
 var jokerActivated = null;
-var SHOW_PASUK_LOC_X = 850;
+var SHOW_PASUK_LOC_X = 880;
 var showPasukImg;
 var showPasukImgClicked;
 var toShowFullPasuk;
@@ -294,6 +294,7 @@ var board = {
         }
     }
 };
+
 var failSwapAudio = new Audio('../music/swapfailed.mp3');
 
 function ____MAIN____(){}
