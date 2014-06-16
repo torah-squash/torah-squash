@@ -117,7 +117,7 @@ function activeFirst(){
          }
 
         var userIndex = me, next = 0, startX, width;
-        var startY = 45;
+        var startY = 32;
         var style = { font: "30pt Century", fill: "#ffffff", align: "left"};//, stroke: "White", strokeThickness: 2 };
         var styleP = { font: "32pt Century", fill: "Blue", align: "left", stroke: "White", strokeThickness: 2 };
         var array = ['ניקוד סה"כ', 'שלב', 'שם משתמש'];
@@ -144,7 +144,10 @@ function activeFirst(){
         console.log('index totah: ' + indextotah);
         function tablebuild(i)
         {
-            if (i == userIndex) {
+            if (i < 0 || i >= table.length) {
+                return;
+            }
+            else if (i == userIndex) {
                 width = 256;
                 startX = (1054 - (3 * width)) / 2;
                 var p = game.add.sprite(startX - 65, startY - DIS_UP, 'winner_prize');
@@ -187,7 +190,7 @@ function activeFirst(){
         {
             if (me<7)
             {
-             for (var i = 0 ; i < 6; i ++)
+             for (var i = 0 ; i < 7; i ++)
                 tablebuild(i);
             }
             else
@@ -196,10 +199,7 @@ function activeFirst(){
                     tablebuild(i)
                 for (var i = 0 ; i < 4; i ++) // show two players above and one down
                 {
-                    var j=me-1;
-                    tablebuild(j);
-                    if (j < x.length-2)
-                        j++;
+                    tablebuild(me + i - 1);
                 }
             }
         }
